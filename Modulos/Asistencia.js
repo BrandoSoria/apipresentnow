@@ -1,30 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
+const pool = require('./Conexion'); // Importa el pool de conexiones
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware para analizar cuerpos de solicitud JSON
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Configuración de la conexión a la base de datos MySQL
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'asis'
-});
-
-// Conexión a la base de datos MySQL
-connection.connect((err) => {
-  if (err) {
-    console.error('Error al conectar a la base de datos: ' + err.stack);
-    return;
-  }
-  console.log('Conexión a la base de datos MySQL establecida con el ID ' + connection.threadId);
-});
 
 // Endpoint para marcar asistencia
 app.post('/api/asistencias', (req, res) => {
@@ -32,7 +15,7 @@ app.post('/api/asistencias', (req, res) => {
   const sql = `INSERT INTO asistencias (alumno_id, fecha_hora, asistio, observaciones) VALUES (?, ?, ?, ?)`;
   const values = [alumno_id, fecha_hora, asistio, observaciones];
 
-  connection.query(sql, values, (err, result) => {
+  pool.query(sql, values, (err, result) => {
     if (err) {
       console.error('Error al marcar la asistencia: ' + err.message);
       res.status(500).send('Error interno del servidor');
@@ -44,7 +27,7 @@ app.post('/api/asistencias', (req, res) => {
 
 // Endpoint para obtener todas las asistencias
 app.get('/api/asistencias', (req, res) => {
-  connection.query('SELECT * FROM asistencias', (err, rows) => {
+  pool.query('SELECT * FROM asistencias', (err, rows) => {
     if (err) {
       console.error('Error al obtener las asistencias: ' + err.message);
       res.status(500).send('Error interno del servidor');
@@ -53,6 +36,7 @@ app.get('/api/asistencias', (req, res) => {
     res.json(rows);
   });
 });
+
 
 // Iniciar el servidor Express
 app.listen(PORT, () => {
