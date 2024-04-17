@@ -11,10 +11,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Configuración de la conexión a la base de datos MySQL
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'asis'
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'dbpn',
 });
 
 // Conexión a la base de datos MySQL
