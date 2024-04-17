@@ -42,6 +42,18 @@ app.post('/api/asistencias', (req, res) => {
   });
 });
 
+// Endpoint para obtener todas las asistencias
+app.get('/api/asistencias', (req, res) => {
+  connection.query('SELECT * FROM asistencias', (err, rows) => {
+    if (err) {
+      console.error('Error al obtener las asistencias: ' + err.message);
+      res.status(500).send('Error interno del servidor');
+      return;
+    }
+    res.json(rows);
+  });
+});
+
 // Iniciar el servidor Express
 app.listen(PORT, () => {
   console.log(`Servidor Express escuchando en el puerto ${PORT}`);
