@@ -5,10 +5,10 @@ const app = express();
 
 // Configura la conexión a la base de datos MySQL
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'asis'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 // Conecta a la base de datos MySQL
