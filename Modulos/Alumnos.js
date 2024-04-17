@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
+const pool = require('./Conexion');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,26 +9,9 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Configuración de la conexión a la base de datos MySQL
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'asis'
-});
-
-// Conexión a la base de datos MySQL
-connection.connect((err) => {
-  if (err) {
-    console.error('Error al conectar a la base de datos: ' + err.stack);
-    return;
-  }
-  console.log('Conexión a la base de datos MySQL establecida con el ID ' + connection.threadId);
-});
-
 // Endpoint para obtener todos los alumnos
 app.get('/api/alumnos', (req, res) => {
-  connection.query('SELECT * FROM alumnos', (err, rows) => {
+  pool.query('SELECT * FROM alumnos', (err, rows) => {
     if (err) {
       console.error('Error al obtener los alumnos: ' + err.message);
       res.status(500).send('Error interno del servidor');
@@ -44,7 +27,7 @@ app.post('/api/alumnos', (req, res) => {
   const sql = `INSERT INTO alumnos (numero_de_control, nombre_completo, grupo, carrera, semestre, materia, horario) VALUES (?, ?, ?, ?, ?, ?, ?)`;
   const values = [numero_de_control, nombre_completo, grupo, carrera, semestre, materia, horario];
 
-  connection.query(sql, values, (err, result) => {
+  pool.query(sql, values, (err, result) => {
     if (err) {
       console.error('Error al agregar un nuevo alumno: ' + err.message);
       res.status(500).send('Error interno del servidor');
@@ -57,7 +40,7 @@ app.post('/api/alumnos', (req, res) => {
 // Endpoint para eliminar un alumno
 app.delete('/api/alumnos/:id', (req, res) => {
   const id = req.params.id;
-  connection.query('DELETE FROM alumnos WHERE id = ?', id, (err, result) => {
+  pool.query('DELETE FROM alumnos WHERE id = ?', id, (err, result) => {
     if (err) {
       console.error('Error al eliminar el alumno: ' + err.message);
       res.status(500).send('Error interno del servidor');
@@ -74,7 +57,7 @@ app.put('/api/alumnos/:id', (req, res) => {
   const sql = `UPDATE alumnos SET nombre_completo = ?, grupo = ?, carrera = ?, semestre = ?, materia = ?, horario = ? WHERE id = ?`;
   const values = [nombre_completo, grupo, carrera, semestre, materia, horario, id];
 
-  connection.query(sql, values, (err, result) => {
+  pool.query(sql, values, (err, result) => {
     if (err) {
       console.error('Error al actualizar el alumno: ' + err.message);
       res.status(500).send('Error interno del servidor');
