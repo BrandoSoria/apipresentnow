@@ -4,12 +4,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-const Alumno = require('./Modulos/Alumnos');// Exporte desde Modulos
-const Asistencia = require('./Modulos/Asistencia');
-const Maestro = require('./Modulos/Maestros');
-const ES = require('./Modulos/Entrada_Salida');
+// const Alumno = require('./Modulos/Alumnos');// Exporte desde Modulos
+// const Asistencia = require('./Modulos/Asistencia');
+// const Maestro = require('./Modulos/Maestros');
+// const ES = require('./Modulos/Entrada_Salida');
 
-// const trabajo = require('./puerto/puertos');
+const trabajo = require('./puerto/puertos');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
