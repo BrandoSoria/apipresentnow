@@ -7,6 +7,7 @@ var logger = require('morgan');
 const Alumno = require('./Modulos/Alumnos');// Exporte desde Modulos
 const Asistencia = require('./Modulos/Asistencia');
 const Maestro = require('./Modulos/Maestros');
+const ES = require('./Modulos/Entrada_Salida');
 
 // const trabajo = require('./puerto/puertos');
 
