@@ -5,7 +5,10 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 const Alumno = require('./Modulos/Alumnos');// Exporte desde Modulos
-const Asistencia = require('./Modulos/Asistencia');
+// const Asistencia = require('./Modulos/Asistencia');
+const Maestro = require('./Modulos/Maestros');
+
+// const trabajo = require('./puerto/puertos');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
