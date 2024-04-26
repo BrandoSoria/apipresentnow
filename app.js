@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const bodyParser = require ('body-parser');
-const Alumno = require('./routes/routes');// Exporte desde Modulos
+const routes = require('./routes/routes');
 
 var app = express();
 
