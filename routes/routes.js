@@ -7,15 +7,8 @@ const router = app => {
         });
     });
 
-    // Endpoints para la tabla Profesores
-    app.get('/profesores', (request, response) => {
-        pool.query('SELECT * FROM Profesores', (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
 
-    // Crear un nuevo profesor
+   // Crear un nuevo profesor
 app.post('/profesores', (request, response) => {
     const { nombre, rfc, departamento } = request.body;
     pool.query('INSERT INTO Profesores (Nombre, RFC, Departamento) VALUES (?, ?, ?)', [nombre, rfc, departamento], (error, result) => {
@@ -43,23 +36,7 @@ app.delete('/profesores/:rfc', (request, response) => {
     });
 });
 
-    app.get('/profesores/:rfc', (request, response) => {
-        const rfc = request.params.rfc;
-        pool.query('SELECT * FROM Profesores WHERE RFC = ?', rfc, (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Endpoints para la tabla Departamento
-    app.get('/departamentos', (request, response) => {
-        pool.query('SELECT * FROM Departamento', (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Crear un nuevo departamento
+// Crear un nuevo departamento
 app.post('/departamentos', (request, response) => {
     const { nombre } = request.body;
     pool.query('INSERT INTO Departamento (Nombre) VALUES (?)', [nombre], (error, result) => {
@@ -87,23 +64,7 @@ app.delete('/departamentos/:id', (request, response) => {
     });
 });
 
-    app.get('/departamentos/:id', (request, response) => {
-        const id = request.params.id;
-        pool.query('SELECT * FROM Departamento WHERE id = ?', id, (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Endpoints para la tabla Materia
-    app.get('/materias', (request, response) => {
-        pool.query('SELECT * FROM Materia', (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Crear una nueva materia
+// Crear una nueva materia
 app.post('/materias', (request, response) => {
     const { claveMateria, nombre, creditos } = request.body;
     pool.query('INSERT INTO Materia (ClaveMateria, Nombre, Creditos) VALUES (?, ?, ?)', [claveMateria, nombre, creditos], (error, result) => {
@@ -131,22 +92,7 @@ app.delete('/materias/:clave', (request, response) => {
     });
 });
 
-    app.get('/materias/:clave', (request, response) => {
-        const clave = request.params.clave;
-        pool.query('SELECT * FROM Materia WHERE ClaveMateria = ?', clave, (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Endpoints para la tabla Plan de Estudio
-    app.get('/planesestudio', (request, response) => {
-        pool.query('SELECT * FROM PlanEstudio', (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-    // Crear un nuevo plan de estudio
+// Crear un nuevo plan de estudio
 app.post('/planesestudio', (request, response) => {
     const { nombre } = request.body;
     pool.query('INSERT INTO PlanEstudio (Nombre) VALUES (?)', [nombre], (error, result) => {
@@ -174,24 +120,7 @@ app.delete('/planesestudio/:id', (request, response) => {
     });
 });
 
-
-    app.get('/planesestudio/:id', (request, response) => {
-        const id = request.params.id;
-        pool.query('SELECT * FROM PlanEstudio WHERE id = ?', id, (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Endpoints para la tabla Alumno
-    app.get('/alumnos', (request, response) => {
-        pool.query('SELECT * FROM Alumno', (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Crear un nuevo alumno
+// Crear un nuevo alumno
 app.post('/alumnos', (request, response) => {
     const { numeroControl, nombre, carrera } = request.body;
     pool.query('INSERT INTO Alumno (NumeroControl, Nombre, Carrera) VALUES (?, ?, ?)', [numeroControl, nombre, carrera], (error, result) => {
@@ -219,22 +148,7 @@ app.delete('/alumnos/:numerocontrol', (request, response) => {
     });
 });
 
-    app.get('/alumnos/:numerocontrol', (request, response) => {
-        const numerocontrol = request.params.numerocontrol;
-        pool.query('SELECT * FROM Alumno WHERE NumeroControl = ?', numerocontrol, (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    // Endpoints para la tabla Grupo
-    app.get('/grupos', (request, response) => {
-        pool.query('SELECT * FROM Grupo', (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-    // Crear un nuevo grupo
+// Crear un nuevo grupo
 app.post('/grupos', (request, response) => {
     const { nombre, capacidad } = request.body;
     pool.query('INSERT INTO Grupo (Nombre, Capacidad) VALUES (?, ?)', [nombre, capacidad], (error, result) => {
@@ -262,17 +176,6 @@ app.delete('/grupos/:id', (request, response) => {
     });
 });
 
-
-    app.get('/grupos/:id', (request, response) => {
-        const id = request.params.id;
-        pool.query('SELECT * FROM Grupo WHERE id = ?', id, (error, result) => {
-            if (error) throw error;
-            response.send(result);
-        });
-    });
-
-    return app;
-};
 // Obtener todas las asistencias
 router.get('/asistencias', (req, res) => {
     pool.query('SELECT * FROM Asistencia', (error, results) => {
@@ -327,4 +230,10 @@ router.delete('/asistencias/:id', (req, res) => {
         res.status(200).send(`Asistencia eliminada con ID: ${id}`);
     });
 });
+
+
+}
+        
+
+
 module.exports = router;

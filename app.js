@@ -12,9 +12,9 @@ const app = express();
 
  }));
  routes(app);
+
  
  //iniciar
  const server = app.listen(port,(error)=>{
     if (error) return console.log('error: ${error}');
-    console.log('el servidor escucha en el puerto ${server.address).port}');
- });
+    console.log('el servidor escucha en el puerto ${server.address).port}')});
