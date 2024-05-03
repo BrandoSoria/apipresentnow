@@ -1,4 +1,4 @@
-const pool = require('./conexion');
+const pool = require('./data');
 const router = app => {
     app.get('/', (request, response) => {
         response.send({
