@@ -1,4 +1,3 @@
-var createError = require('http-errors');
 var express = require('express');
 const port = 3002;
 var path = require('path');
