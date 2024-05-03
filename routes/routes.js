@@ -175,7 +175,7 @@ app.delete('/grupos/:id', (request, response) => {
 });
 
 // Obtener todas las asistencias
-router.get('/asistencias', (req, res) => {
+app.get('/asistencias', (req, res) => {
     pool.query('SELECT * FROM Asistencia', (error, results) => {
         if (error) {
             throw error;
@@ -185,7 +185,7 @@ router.get('/asistencias', (req, res) => {
 });
 
 // Obtener una asistencia por su ID
-router.get('/asistencias/:id', (req, res) => {
+app.get('/asistencias/:id', (req, res) => {
     const id = req.params.id;
     pool.query('SELECT * FROM Asistencia WHERE id = ?', id, (error, results) => {
         if (error) {
@@ -196,7 +196,7 @@ router.get('/asistencias/:id', (req, res) => {
 });
 
 // Crear una nueva asistencia
-router.post('/asistencias', (req, res) => {
+app.post('/asistencias', (req, res) => {
     const { AlumnoID, Fecha, Presente } = req.body;
     pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente) VALUES (?, ?, ?)', [AlumnoID, Fecha, Presente], (error, results) => {
         if (error) {
@@ -207,7 +207,7 @@ router.post('/asistencias', (req, res) => {
 });
 
 // Actualizar una asistencia
-router.put('/asistencias/:id', (req, res) => {
+app.put('/asistencias/:id', (req, res) => {
     const id = req.params.id;
     const { AlumnoID, Fecha, Presente } = req.body;
     pool.query('UPDATE Asistencia SET AlumnoID = ?, Fecha = ?, Presente = ? WHERE id = ?', [AlumnoID, Fecha, Presente, id], (error, results) => {
@@ -219,7 +219,7 @@ router.put('/asistencias/:id', (req, res) => {
 });
 
 // Eliminar una asistencia
-router.delete('/asistencias/:id', (req, res) => {
+app.delete('/asistencias/:id', (req, res) => {
     const id = req.params.id;
     pool.query('DELETE FROM Asistencia WHERE id = ?', id, (error, results) => {
         if (error) {
