@@ -1,82 +1,116 @@
 const pool = require('../data/conexion');
-const router = app => {
+
+const router = (app) => {
+    // Ruta de bienvenida
     app.get('/', (request, response) => {
-        response.send({
+        response.json({
             message: '¡Bienvenido a la API REST de Node.js Express!'
         });
     });
 
-    const pool = require('./conexion');
-    const router = app => {
-        app.get('/', (request, response) => {
-            response.send({
-                message: '¡Bienvenido a la API REST de Node.js Express!'
-            });
-        });
-    
-    
-       // Crear un nuevo profesor
+
+    // Crear un nuevo profesor
     app.post('/profesores', (request, response) => {
         const { nombre, rfc, departamento } = request.body;
         pool.query('INSERT INTO Profesores (Nombre, RFC, Departamento) VALUES (?, ?, ?)', [nombre, rfc, departamento], (error, result) => {
-            if (error) throw error;
-            response.send('Profesor creado correctamente');
+            if (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Error al crear profesor' });
+            }
+            response.status(201).json({ message: 'Profesor creado correctamente' });
         });
     });
-    
+
     // Actualizar un profesor existente
     app.put('/profesores/:rfc', (request, response) => {
         const rfc = request.params.rfc;
         const { nombre, departamento } = request.body;
         pool.query('UPDATE Profesores SET Nombre = ?, Departamento = ? WHERE RFC = ?', [nombre, departamento, rfc], (error, result) => {
-            if (error) throw error;
-            response.send('Profesor actualizado correctamente');
+            if (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Error al actualizar profesor' });
+            }
+            response.json({ message: 'Profesor actualizado correctamente' });
         });
     });
-    
+
     // Eliminar un profesor
     app.delete('/profesores/:rfc', (request, response) => {
         const rfc = request.params.rfc;
-        pool.query('DELETE FROM Profesores WHERE RFC = ?', rfc, (error, result) => {
-            if (error) throw error;
-            response.send('Profesor eliminado correctamente');
+        pool.query('DELETE FROM Profesores WHERE RFC = ?', [rfc], (error, result) => {
+            if (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Error al eliminar profesor' });
+            }
+            response.json({ message: 'Profesor eliminado correctamente' });
         });
     });
-    
-    // Crear un nuevo departamento
-    app.post('/departamentos', (request, response) => {
-        const { nombre } = request.body;
-        pool.query('INSERT INTO Departamento (Nombre) VALUES (?)', [nombre], (error, result) => {
-            if (error) throw error;
-            response.send('Departamento creado correctamente');
-        });
+
+   // Ruta para crear un nuevo departamento
+   const router = (app) => {
+   app.post('/departamentos', (request, response) => {
+    const { nombre } = request.body;
+    pool.query('INSERT INTO Departamento (Nombre) VALUES (?)', [nombre], (error, result) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Error al crear departamento' });
+        }
+        response.status(201).json({ message: 'Departamento creado correctamente' });
     });
-    
-    // Actualizar un departamento existente
-    app.put('/departamentos/:id', (request, response) => {
-        const id = request.params.id;
-        const { nombre } = request.body;
-        pool.query('UPDATE Departamento SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
-            if (error) throw error;
-            response.send('Departamento actualizado correctamente');
-        });
+});
+
+
+// Ruta para obtener un departamento por ID
+app.get('/departamentos/:id', (request, response) => {
+    const id = request.params.id;
+    pool.query('SELECT * FROM Departamento WHERE id = ?', [id], (error, results) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Error al obtener departamento' });
+        }
+        if (results.length === 0) {
+            return response.status(404).json({ error: 'Departamento no encontrado' });
+        }
+        response.status(200).json(results[0]);
     });
-    
-    // Eliminar un departamento
-    app.delete('/departamentos/:id', (request, response) => {
-        const id = request.params.id;
-        pool.query('DELETE FROM Departamento WHERE id = ?', id, (error, result) => {
-            if (error) throw error;
-            response.send('Departamento eliminado correctamente');
-        });
+});
+
+// Define más rutas aquí usando `app`...
+
+// Maneja los errores para los métodos PUT, DELETE, POST
+app.put('/departamentos/:id', (request, response) => {
+    const id = request.params.id;
+    const { nombre } = request.body;
+    pool.query('UPDATE Departamento SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Error al actualizar departamento' });
+        }
+        response.status(200).json({ message: 'Departamento actualizado correctamente' });
     });
+});
+
+app.delete('/departamentos/:id', (request, response) => {
+    const id = request.params.id;
+    pool.query('DELETE FROM Departamento WHERE id = ?', [id], (error, result) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Error al eliminar departamento' });
+        }
+        response.status(200).json({ message: 'Departamento eliminado correctamente' });
+    });
+});
     
     // Crear una nueva materia
     app.post('/materias', (request, response) => {
         const { claveMateria, nombre, creditos } = request.body;
         pool.query('INSERT INTO Materia (ClaveMateria, Nombre, Creditos) VALUES (?, ?, ?)', [claveMateria, nombre, creditos], (error, result) => {
-            if (error) throw error;
-            response.send('Materia creada correctamente');
+            if (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Error al crear materia' });
+            }
+            response.status(201).json({ message: 'Materia creada correctamente' });
+            
         });
     });
     
@@ -93,7 +127,7 @@ const router = app => {
     // Eliminar una materia
     app.delete('/materias/:clave', (request, response) => {
         const clave = request.params.clave;
-        pool.query('DELETE FROM Materia WHERE ClaveMateria = ?', clave, (error, result) => {
+        pool.query('DELETE FROM Materia WHERE ClaveMateria = ?', [clave], (error, result) => {
             if (error) throw error;
             response.send('Materia eliminada correctamente');
         });
@@ -436,10 +470,6 @@ app.delete('/asistencias/:id', (req, res) => {
         res.status(200).send(`Asistencia eliminada con ID: ${id}`);
     });
 });
-
-
-}
-        
-
-
+};
+    
 module.exports = router;

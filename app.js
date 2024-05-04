@@ -1,22 +1,37 @@
-var express = require('express');
-const port = 3002;
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const bodyParser = require ('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
 const routes = require('./routes/routes');
 
-var app = express();
+const app = express();
+const port = process.env.PORT || 3002;
 
-//usar node.js body parsing middleware
+// Configura middlewares
+app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded ({
-   extended: true
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(logger('dev'));
 
-}));
+// Configura rutas
 routes(app);
- //iniciar
- const server = app.listen(port,(error)=>{
-    if (error) return console.log('error: ${error}');
-    console.log('el servidor escucha en el puerto ${server.addres().port}');
- });
+
+// Maneja rutas no definidas (404)
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Ruta no encontrada' });
+});
+
+// Maneja errores
+app.use((error, req, res, next) => {
+    console.error(error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+});
+
+// Inicia el servidor
+const server = app.listen(port, (error) => {
+    if (error) {
+        console.error(`Error al iniciar el servidor: ${error}`);
+        return;
+    }
+    console.log(`Servidor escuchando en el puerto ${server.address().port}`);
+});
