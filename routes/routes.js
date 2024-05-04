@@ -470,6 +470,189 @@ app.delete('/asistencias/:id', (req, res) => {
         res.status(200).send(`Asistencia eliminada con ID: ${id}`);
     });
 });
+
+// los get
+
+    // Ruta para obtener todos los profesores
+    app.get('/profesores', (req, res) => {
+        pool.query('SELECT * FROM Profesores', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener profesores' });
+            }
+            res.status(200).json(results);
+        });
+    });
+
+    // Ruta para obtener todos los departamentos
+    app.get('/departamentos', (req, res) => {
+        pool.query('SELECT * FROM Departamento', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener departamentos' });
+            }
+            res.status(200).json(results);
+        });
+    });
+
+    // Ruta para obtener todas las materias
+    app.get('/materias', (req, res) => {
+        pool.query('SELECT * FROM Materia', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener materias' });
+            }
+            res.status(200).json(results);
+        });
+    });
+
+    // Ruta para obtener todos los planes de estudio
+    app.get('/planesestudio', (req, res) => {
+        pool.query('SELECT * FROM PlanEstudio', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener planes de estudio' });
+            }
+            res.status(200).json(results);
+        });
+    });
+
+    // Ruta para obtener todos los alumnos
+    app.get('/alumnos', (req, res) => {
+        pool.query('SELECT * FROM Alumno', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener alumnos' });
+            }
+            res.status(200).json(results);
+        });
+    });
+
+    // Ruta para obtener todos los grupos
+    app.get('/grupos', (req, res) => {
+        pool.query('SELECT * FROM Grupo', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener grupos' });
+            }
+            res.status(200).json(results);
+        });
+    });
+
+    // Ruta para obtener todas las asistencias
+    app.get('/asistencias', (req, res) => {
+        pool.query('SELECT * FROM Asistencia', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener asistencias' });
+            }
+            res.status(200).json(results);
+        });
+    });
+    // Obtener un profesor por su RFC
+    app.get('/profesores/:rfc', (req, res) => {
+        const rfc = req.params.rfc;
+        pool.query('SELECT * FROM Profesores WHERE RFC = ?', [rfc], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener profesor' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Profesor no encontrado' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
+
+    // Obtener un departamento por su ID
+    app.get('/departamentos/:id', (req, res) => {
+        const id = req.params.id;
+        pool.query('SELECT * FROM Departamento WHERE id = ?', [id], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener departamento' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Departamento no encontrado' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
+
+    // Obtener una materia por su clave
+    app.get('/materias/:clave', (req, res) => {
+        const clave = req.params.clave;
+        pool.query('SELECT * FROM Materia WHERE ClaveMateria = ?', [clave], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener materia' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Materia no encontrada' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
+
+    // Obtener un plan de estudio por su ID
+    app.get('/planesestudio/:id', (req, res) => {
+        const id = req.params.id;
+        pool.query('SELECT * FROM PlanEstudio WHERE id = ?', [id], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener plan de estudio' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Plan de estudio no encontrado' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
+
+    // Obtener un alumno por su número de control
+    app.get('/alumnos/:numerocontrol', (req, res) => {
+        const numerocontrol = req.params.numerocontrol;
+        pool.query('SELECT * FROM Alumno WHERE NumeroControl = ?', [numerocontrol], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener alumno' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Alumno no encontrado' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
+
+    // Obtener un grupo por su ID
+    app.get('/grupos/:id', (req, res) => {
+        const id = req.params.id;
+        pool.query('SELECT * FROM Grupo WHERE id = ?', [id], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener grupo' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Grupo no encontrado' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
+
+    // Obtener una asistencia por su ID
+    app.get('/asistencias/:id', (req, res) => {
+        const id = req.params.id;
+        pool.query('SELECT * FROM Asistencia WHERE id = ?', [id], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener asistencia' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Asistencia no encontrada' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
 };
-    
+
 module.exports = router;
