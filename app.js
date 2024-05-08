@@ -6,7 +6,7 @@ const routes = require('./routes/routes');
 
 //login
 // const { autenticarAlumno, autenticarMaestro } = require('../apipresentnow/routes/auth');
-const { autenticarAlumno, autenticarMaestro } = require('./routes/auth');
+const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
 
 const app = express();
 app.use(express.json()); // Para manejar solicitudes JSON nuevo codigo de jwt
@@ -24,6 +24,8 @@ routes(app);
 // Rutas de autenticación
 app.post('/login/alumno', autenticarAlumno);
 app.post('/login/maestro', autenticarMaestro);
+app.post('/login/crear/maestro', crearMaestro);
+app.post('/login/crear/alumno', crearAlumno);
 
 // Maneja rutas no definidas (404)
 app.use((req, res, next) => {

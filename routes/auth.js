@@ -122,7 +122,86 @@ async function autenticarMaestro(req, res) {
     );
 }
 
+// Función para crear un nuevo alumno
+async function crearAlumno(req, res) {
+    const { numeroControl, nombre, contraseña, carrera, roleId } = req.body;
+
+    try {
+        // Verifica si el alumno ya existe
+        const [existingAlumno] = await db.promise().query('SELECT * FROM Alumno WHERE NumeroControl = ?', [numeroControl]);
+        if (existingAlumno.length > 0) {
+            return res.status(400).json({ error: 'El número de control ya está en uso' });
+        }
+
+        // Encripta la contraseña
+        const hashedPassword = await bcrypt.hash(contraseña, 10);
+
+        // Inserta el nuevo alumno en la base de datos
+        await db.promise().query(
+            'INSERT INTO Alumno (NumeroControl, Nombre, Contraseña, Carrera, RoleID) VALUES (?, ?, ?, ?, ?)',
+            [numeroControl, nombre, hashedPassword, carrera, roleId]
+        );
+
+        // Genera un token JWT para el nuevo alumno
+        const token = jwt.sign(
+            {
+                id: numeroControl,
+                roleId: roleId
+            },
+            secretKey,
+            { expiresIn: '1h' }
+        );
+
+        // Responde con el token JWT
+        res.json({ token });
+    } catch (error) {
+        console.error('Error al crear un nuevo alumno:', error);
+        res.status(500).json({ error: 'Error al crear un nuevo alumno' });
+    }
+}
+
+// Función para crear un nuevo maestro
+async function crearMaestro(req, res) {
+    const { rfc, nombre, contraseña, departamentoId, roleId } = req.body;
+
+    try {
+        // Verifica si el maestro ya existe
+        const [existingMaestro] = await db.promise().query('SELECT * FROM Profesores WHERE RFC = ?', [rfc]);
+        if (existingMaestro.length > 0) {
+            return res.status(400).json({ error: 'El RFC ya está en uso' });
+        }
+
+        // Encripta la contraseña
+        const hashedPassword = await bcrypt.hash(contraseña, 10);
+
+        // Inserta el nuevo maestro en la base de datos
+        await db.promise().query(
+            'INSERT INTO Profesores (RFC, Nombre, Contraseña, DepartamentoID, RoleID) VALUES (?, ?, ?, ?, ?)',
+            [rfc, nombre, hashedPassword, departamentoId, roleId]
+        );
+
+        // Genera un token JWT para el nuevo maestro
+        const token = jwt.sign(
+            {
+                id: rfc,
+                roleId: roleId
+            },
+            secretKey,
+            { expiresIn: '1h' }
+        );
+
+        // Responde con el token JWT
+        res.json({ token });
+    } catch (error) {
+        console.error('Error al crear un nuevo maestro:', error);
+        res.status(500).json({ error: 'Error al crear un nuevo maestro' });
+    }
+}
+
+// Exportar las funciones
 module.exports = {
     autenticarAlumno,
     autenticarMaestro,
+    crearAlumno,
+    crearMaestro,
 };
