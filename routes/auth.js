@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const db = require('./conexion');
 
 const secretKey = process.env.SECRET_KEY;
@@ -134,7 +134,7 @@ async function crearAlumno(req, res) {
         }
 
         // Encripta la contraseña
-        const hashedPassword = await bcrypt.hash(contraseña, 10);
+        const hashedPassword = await bcryptjs.hash(contraseña, 10);
 
         // Inserta el nuevo alumno en la base de datos
         await db.promise().query(
@@ -172,7 +172,7 @@ async function crearMaestro(req, res) {
         }
 
         // Encripta la contraseña
-        const hashedPassword = await bcrypt.hash(contraseña, 10);
+        const hashedPassword = await bcryptjs.hash(contraseña, 10);
 
         // Inserta el nuevo maestro en la base de datos
         await db.promise().query(
