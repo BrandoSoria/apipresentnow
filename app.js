@@ -4,7 +4,12 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/routes');
 
+//login
+// const { autenticarAlumno, autenticarMaestro } = require('../apipresentnow/routes/auth');
+const { autenticarAlumno, autenticarMaestro } = require('./routes/auth');
+
 const app = express();
+app.use(express.json()); // Para manejar solicitudes JSON nuevo codigo de jwt
 const port = process.env.PORT || 3002;
 
 // Configura middlewares
@@ -15,6 +20,10 @@ app.use(logger('dev'));
 
 // Configura rutas
 routes(app);
+
+// Rutas de autenticación
+app.post('/login/alumno', autenticarAlumno);
+app.post('/login/maestro', autenticarMaestro);
 
 // Maneja rutas no definidas (404)
 app.use((req, res, next) => {
