@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('./conexion');
 const moment = require('moment-timezone');  // Importa moment-timezone
+const db = require('./conexion');
 
 const router = express.Router();
 

@@ -3,7 +3,8 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-const routes = require('./routes/routes');
+const routes = require('./routes');
+
 
 // Carga las variables de entorno
 require('dotenv').config();

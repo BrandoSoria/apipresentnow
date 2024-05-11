@@ -1,4 +1,4 @@
-const db = require('./conexion');
+const db = require('./routes/conexion');
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
