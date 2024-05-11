@@ -1,8 +1,9 @@
+const db = require('./conexion');
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-const routes = require('./routes/routes');
+const routes = require('./routes');
 
 //login
 // const { autenticarAlumno, autenticarMaestro } = require('../apipresentnow/routes/auth');
