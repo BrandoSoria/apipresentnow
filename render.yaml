@@ -1,0 +1,21 @@
+# Exported from Render on 2024-05-03T00:07:41Z
+services:
+- type: web
+  name: proyecto-agiles
+  runtime: node
+  repo: https://github.com/BrandoSoria/apipresentnow
+  branch: produccion
+  plan: free
+  envVars:
+  - key: DB_HOST
+    sync: false
+  - key: DB_USER
+    sync: false
+  - key: DB_PASSWORD
+    sync: false
+  - key: DB_NAME
+    sync: false
+  region: singapore
+  buildCommand: yarn
+  startCommand: node app.js
+version: "1"
