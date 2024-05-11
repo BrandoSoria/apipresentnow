@@ -1,4 +1,6 @@
 const pool = require('./conexion');
+const moment = require('moment-timezone');  // Importa moment-timezone
+
 
 const router = (app) => {
     // Ruta de bienvenida
@@ -217,15 +219,37 @@ app.delete('/departamentos/:id', (request, response) => {
         });
     });
     
-    // Obtener todas las asistencias
-    app.get('/asistencias', (req, res) => {
-        pool.query('SELECT * FROM Asistencia', (error, results) => {
-            if (error) {
-                throw error;
-            }
-            res.status(200).json(results);
-        });
+   
+// Configura la zona horaria local (México)
+const zonaHorariaLocal = 'America/Mexico_City';
+
+router.get('/', async (req, res) => {
+  try {
+    const [asistencias] = await pool.execute('SELECT * FROM asistencias');
+    
+    // Formatear y convertir las fechas a la zona horaria local
+    const asistenciasFormateadas = asistencias.map(asistencia => {
+      // Convierte `fecha_hora` a la zona horaria local
+      const fechaHoraLocal = moment(asistencia.fecha_hora)
+        .tz(zonaHorariaLocal)  // Convierte a la zona horaria local
+        .format('YYYY-MM-DD HH:mm:ss');  // Formatea la fecha y hora
+      
+      return {
+        id: asistencia.id,
+        AlumnoID: asistencia.alumnoID,
+        Fecha: fechaHoraLocal,  // Utiliza la fecha y hora local
+        Presente: asistencia.Presente,
+      };
     });
+
+    res.json(asistenciasFormateadas);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Error en el servidor');
+  }
+});
+
+
     
     // Obtener una asistencia por su ID
     app.get('/asistencias/:id', (req, res) => {
