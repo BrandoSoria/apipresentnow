@@ -3,12 +3,14 @@ const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/routes');
-
+const cors = require('cors');
 //login
 // const { autenticarAlumno, autenticarMaestro } = require('../apipresentnow/routes/auth');
 const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
 
 const app = express();
+// Aplicar el middleware cors a todas las rutas
+app.use(cors());
 app.use(express.json()); // Para manejar solicitudes JSON nuevo codigo de jwt
 const port = process.env.PORT || 3002;
 
