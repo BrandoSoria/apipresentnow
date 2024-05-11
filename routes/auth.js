@@ -119,6 +119,7 @@ async function autenticarMaestro(req, res) {
         }
 
         const match = await bcryptjs.compare(password, maestro[0].Contraseña);
+        console.log('Cuerpo de la solicitud:', req.body);
         if (!match) {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
