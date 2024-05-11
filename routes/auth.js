@@ -1,18 +1,20 @@
-// Importa las dependencias necesarias
 const express = require('express');
 const session = require('express-session');
-const bcryptjs = require('bcryptjs');
-const db = require('./conexion');
-const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const routes = require('./routes/routes');
 
 // Carga las variables de entorno
-dotenv.config();
+require('dotenv').config();
 
 // Define la clave secreta para las sesiones
 const sessionSecret = process.env.SESSION_SECRET || 'secret';
 
-// Configura el middleware de sesiones
+// Inicializa la aplicación Express
 const app = express();
+
+// Configura el middleware de sesiones
 app.use(session({
     secret: sessionSecret,
     resave: false,
@@ -24,6 +26,14 @@ app.use(session({
     },
 }));
 
+// Configura otros middlewares
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(logger('dev'));
+
+// Configura rutas
+routes(app);
 
 // Función para registrar un nuevo alumno
 async function crearAlumno(req, res) {
@@ -138,7 +148,7 @@ async function autenticarMaestro(req, res) {
 
 // Middleware para verificar si un usuario está autenticado
 function verificarAutenticacion(req, res, next) {
-    if (!req.session.userId) {
+    if (!req.session.numeroControl && !req.session.rfc) {
         return res.status(401).json({ error: 'No autenticado' });
     }
     next();
