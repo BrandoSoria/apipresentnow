@@ -137,18 +137,33 @@ async function autenticarMaestro(req, res) {
 }
 
 // Middleware para verificar si un usuario está autenticado
-function verificarAutenticacion(req, res, next) {
-    if (!req.session.userId) {
+function verificarAutenticacionAlumno(req, res, next) {
+    if (!req.session.NumeroControl) {
+        return res.status(401).json({ error: 'No autenticado' });
+    }
+    next();
+}
+
+// Middleware para verificar si un usuario está autenticado
+function verificarAutenticacionMaestro(req, res, next) {
+    if (!req.session.rfc) {
         return res.status(401).json({ error: 'No autenticado' });
     }
     next();
 }
 
 // Ejemplo de cómo usar el middleware en una ruta protegida
-app.get('/ruta-protegida', verificarAutenticacion, (req, res) => {
+app.get('/ruta-protegidaalumno', verificarAutenticacionAlumno, (req, res) => {
     // Lógica de la ruta protegida
     res.json({ mensaje: 'Has accedido a una ruta protegida' });
 });
+
+// Ejemplo de cómo usar el middleware en una ruta protegida
+app.get('/ruta-protegidamaestro', verificarAutenticacionMaestro, (req, res) => {
+    // Lógica de la ruta protegida
+    res.json({ mensaje: 'Has accedido a una ruta protegida' });
+});
+
 
 // Exportar las funciones
 module.exports = {
