@@ -1,5 +1,6 @@
 // Importa las dependencias necesarias
-const jwt = require('jsonwebtoken');
+const express = require('express');
+const session = require('express-session');
 const bcryptjs = require('bcryptjs');
 const db = require('./conexion');
 const dotenv = require('dotenv');
@@ -7,18 +8,25 @@ const dotenv = require('dotenv');
 // Carga las variables de entorno
 dotenv.config();
 
-// Define la clave secreta para JWT
-const secretKey = process.env.SECRET_KEY;
+// Define la clave secreta para las sesiones
+const sessionSecret = process.env.SESSION_SECRET || 'secret';
 
-// Verifica si `secretKey` está definido
-if (!secretKey) {
-    console.error('secretKey no está definida');
-    throw new Error('Error: secretOrPrivateKey must have a value');
-}
+// Configura el middleware de sesiones
+const app = express();
+app.use(session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 3600000, // 1 hora
+    },
+}));
 
-// Función para crear un nuevo alumno
+
+// Función para registrar un nuevo alumno
 async function crearAlumno(req, res) {
-    // Extrae los datos del alumno desde la solicitud
     const { numeroControl, nombre, contraseña, carrera, roleId } = req.body;
 
     try {
@@ -37,133 +45,15 @@ async function crearAlumno(req, res) {
             [numeroControl, nombre, hashedPassword, carrera, roleId]
         );
 
-        // Genera un token JWT para el nuevo alumno
-        const token = jwt.sign(
-            {
-                id: numeroControl,
-                roleId: roleId
-            },
-            secretKey, // Utiliza `secretKey` para firmar el token JWT
-            { expiresIn: '1h' }
-        );
-
-        // Responde con el token JWT
-        res.json({ token });
+        // Responde con éxito
+        res.json({ success: true });
     } catch (error) {
         console.error('Error al crear un nuevo alumno:', error);
         res.status(500).json({ error: 'Error al crear un nuevo alumno' });
     }
 }
 
-// Funciones para autenticar alumnos y maestros
-async function autenticarAlumno(req, res) {
-    const { numeroControl, password } = req.body;
-
-    db.query(
-        'SELECT * FROM Alumno WHERE NumeroControl = ?',
-        [numeroControl],
-        async (err, results) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error en la base de datos' });
-            }
-
-            const alumno = results[0];
-            if (!alumno) {
-                return res.status(401).json({ error: 'Alumno no encontrado' });
-            }
-
-            const match = await bcryptjs.compare(password, alumno.Contraseña);
-            if (!match) {
-                return res.status(401).json({ error: 'Contraseña incorrecta' });
-            }
-
-            db.query(
-                `SELECT Roles.Nombre AS rol, GROUP_CONCAT(Permisos.Nombre) AS permisos
-                 FROM Roles
-                 JOIN RolPermiso ON Roles.RoleID = RolPermiso.RoleID
-                 JOIN Permisos ON RolPermiso.PermisoID = Permisos.PermisoID
-                 WHERE Roles.RoleID = ?`,
-                [alumno.RoleID],
-                (err, roleResults) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Error en la base de datos' });
-                    }
-
-                    const rol = roleResults[0]?.rol;
-                    const permisos = roleResults[0]?.permisos;
-
-                    const token = jwt.sign(
-                        {
-                            id: alumno.NumeroControl,
-                            role: rol,
-                            permisos: permisos
-                        },
-                        secretKey, // Utiliza `secretKey` para firmar el token JWT
-                        { expiresIn: '1h' }
-                    );
-
-                    res.json({ token });
-                }
-            );
-        }
-    );
-}
-
-// Similarmente, aquí puedes agregar `autenticarMaestro` y otras funciones que necesitas.
-async function autenticarMaestro(req, res) {
-    const { rfc, password } = req.body;
-
-    db.query(
-        'SELECT * FROM Profesores WHERE RFC = ?',
-        [rfc],
-        async (err, results) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error en la base de datos' });
-            }
-
-            const maestro = results[0];
-            if (!maestro) {
-                return res.status(401).json({ error: 'Maestro no encontrado' });
-            }
-
-            const match = await bcryptjs.compare(password, maestro.Contraseña);
-            if (!match) {
-                return res.status(401).json({ error: 'Contraseña incorrecta' });
-            }
-
-            db.query(
-                `SELECT Roles.Nombre AS rol, GROUP_CONCAT(Permisos.Nombre) AS permisos
-                 FROM Roles
-                 JOIN RolPermiso ON Roles.RoleID = RolPermiso.RoleID
-                 JOIN Permisos ON RolPermiso.PermisoID = Permisos.PermisoID
-                 WHERE Roles.RoleID = ?`,
-                [maestro.RoleID],
-                (err, roleResults) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Error en la base de datos' });
-                    }
-
-                    const rol = roleResults[0]?.rol;
-                    const permisos = roleResults[0]?.permisos;
-
-                    const token = jwt.sign(
-                        {
-                            id: maestro.RFC,
-                            role: rol,
-                            permisos: permisos
-                        },
-                        secretKey, // Utiliza `secretKey` para firmar el token JWT
-                        { expiresIn: '1h' }
-                    );
-
-                    res.json({ token });
-                }
-            );
-        }
-    );
-}
-
-// Función para crear un nuevo maestro
+// Función para registrar un nuevo maestro
 async function crearMaestro(req, res) {
     const { rfc, nombre, contraseña, departamentoId, roleId } = req.body;
 
@@ -183,23 +73,81 @@ async function crearMaestro(req, res) {
             [rfc, nombre, hashedPassword, departamentoId, roleId]
         );
 
-        // Genera un token JWT para el nuevo maestro
-        const token = jwt.sign(
-            {
-                id: rfc,
-                roleId: roleId
-            },
-            secretKey,
-            { expiresIn: '1h' }
-        );
-
-        // Responde con el token JWT
-        res.json({ token });
+        // Responde con éxito
+        res.json({ success: true });
     } catch (error) {
         console.error('Error al crear un nuevo maestro:', error);
         res.status(500).json({ error: 'Error al crear un nuevo maestro' });
     }
 }
+
+// Función para autenticar a un alumno
+async function autenticarAlumno(req, res) {
+    const { numeroControl, password } = req.body;
+
+    try {
+        const [alumno] = await db.promise().query('SELECT * FROM Alumno WHERE NumeroControl = ?', [numeroControl]);
+        if (!alumno || alumno.length === 0) {
+            return res.status(401).json({ error: 'Alumno no encontrado' });
+        }
+
+        const match = await bcryptjs.compare(password, alumno[0].Contraseña);
+        if (!match) {
+            return res.status(401).json({ error: 'Contraseña incorrecta' });
+        }
+
+        // Almacena el ID del alumno y el rol en la sesión
+        req.session.userId = alumno[0].NumeroControl;
+        req.session.userRole = 'alumno';
+
+        // Responde con éxito
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al autenticar alumno:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+}
+
+// Función para autenticar a un maestro
+async function autenticarMaestro(req, res) {
+    const { rfc, password } = req.body;
+
+    try {
+        const [maestro] = await db.promise().query('SELECT * FROM Profesores WHERE RFC = ?', [rfc]);
+        if (!maestro || maestro.length === 0) {
+            return res.status(401).json({ error: 'Maestro no encontrado' });
+        }
+
+        const match = await bcryptjs.compare(password, maestro[0].Contraseña);
+        if (!match) {
+            return res.status(401).json({ error: 'Contraseña incorrecta' });
+        }
+
+        // Almacena el ID del maestro y el rol en la sesión
+        req.session.userId = maestro[0].RFC;
+        req.session.userRole = 'maestro';
+
+        // Responde con éxito
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al autenticar maestro:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+}
+
+// Middleware para verificar si un usuario está autenticado
+function verificarAutenticacion(req, res, next) {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'No autenticado' });
+    }
+    next();
+}
+
+// Ejemplo de cómo usar el middleware en una ruta protegida
+app.get('/ruta-protegida', verificarAutenticacion, (req, res) => {
+    // Lógica de la ruta protegida
+    res.json({ mensaje: 'Has accedido a una ruta protegida' });
+});
 
 // Exportar las funciones
 module.exports = {
