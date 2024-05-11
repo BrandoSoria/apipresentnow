@@ -37,7 +37,7 @@ async function crearAlumno(req, res) {
         }
 
         // Encripta la contraseña
-        const hashedPassword = await bcryptjs.hash(contraseña, 10);
+        const hashedPassword = await bcryptjs.hash(contraseña, 10); //j
 
         // Inserta el nuevo alumno en la base de datos
         await db.promise().query(
