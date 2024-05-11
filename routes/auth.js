@@ -97,7 +97,7 @@ async function autenticarAlumno(req, res) {
         }
 
         // Almacena el ID del alumno y el rol en la sesión
-        req.session.userId = alumno[0].NumeroControl;
+        req.session.numeroControl = alumno[0].NumeroControl;
         req.session.userRole = 'alumno';
 
         // Responde con éxito
@@ -125,7 +125,7 @@ async function autenticarMaestro(req, res) {
         }
 
         // Almacena el ID del maestro y el rol en la sesión
-        req.session.userId = maestro[0].RFC;
+        req.session.rfc = maestro[0].RFC;
         req.session.userRole = 'maestro';
 
         // Responde con éxito
