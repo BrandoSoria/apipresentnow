@@ -9,17 +9,17 @@ const router = (app) => {
     });
 
 
-    // Crear un nuevo profesor
-    app.post('/profesores', (request, response) => {
-        const { nombre, rfc, departamento } = request.body;
-        pool.query('INSERT INTO Profesores (Nombre, RFC, Departamento) VALUES (?, ?, ?)', [nombre, rfc, departamento], (error, result) => {
-            if (error) {
-                console.error(error);
-                return response.status(500).json({ error: 'Error al crear profesor' });
-            }
-            response.status(201).json({ message: 'Profesor creado correctamente' });
-        });
-    });
+    // // Crear un nuevo profesor
+    // app.post('/profesores', (request, response) => {
+    //     const { nombre, rfc, departamento } = request.body;
+    //     pool.query('INSERT INTO Profesores (Nombre, RFC, Departamento) VALUES (?, ?, ?)', [nombre, rfc, departamento], (error, result) => {
+    //         if (error) {
+    //             console.error(error);
+    //             return response.status(500).json({ error: 'Error al crear profesor' });
+    //         }
+    //         response.status(201).json({ message: 'Profesor creado correctamente' });
+    //     });
+    // });
 
     // Actualizar un profesor existente
     app.put('/profesores/:rfc', (request, response) => {
@@ -161,14 +161,14 @@ app.delete('/departamentos/:id', (request, response) => {
         });
     });
     
-    // Crear un nuevo alumno
-    app.post('/alumnos', (request, response) => {
-        const { numeroControl, nombre, carrera } = request.body;
-        pool.query('INSERT INTO Alumno (NumeroControl, Nombre, Carrera) VALUES (?, ?, ?)', [numeroControl, nombre, carrera], (error, result) => {
-            if (error) throw error;
-            response.send('Alumno creado correctamente');
-        });
-    });
+    // // Crear un nuevo alumno
+    // app.post('/alumnos', (request, response) => {
+    //     const { numeroControl, nombre, carrera } = request.body;
+    //     pool.query('INSERT INTO Alumno (NumeroControl, Nombre, Carrera) VALUES (?, ?, ?)', [numeroControl, nombre, carrera], (error, result) => {
+    //         if (error) throw error;
+    //         response.send('Alumno creado correctamente');
+    //     });
+    // });
     
     // Actualizar un alumno existente
     app.put('/alumnos/:numerocontrol', (request, response) => {
