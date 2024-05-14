@@ -335,7 +335,7 @@ app.delete('/departamentos/:id', (request, response) => {
 //tabla nueva definitiva
 app.post('/materias', (request, response) => {
     const { claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl } = request.body;
-    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, FechaHora, ProfesorRFC, NumeroControl) VALUES (?, ?, ?)', [claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
+    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl) VALUES (?, ?, ?)', [claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
         if (error) throw error;
         response.send('Materia creada correctamente');
     });
@@ -362,8 +362,8 @@ app.delete('/materias/:clave', (request, response) => {
 
 // Crear un nuevo plan de estudio
 app.post('/planesestudio', (request, response) => {
-    const { nombre } = request.body;
-    pool.query('INSERT INTO PlanEstudio (Nombre) VALUES (?)', [nombre], (error, result) => {
+    const { nombre, cicloEscolar } = request.body;
+    pool.query('INSERT INTO PlanEstudio (Nombre, CicloEscolar) VALUES (?)', [nombre,cicloEscolar], (error, result) => {
         if (error) throw error;
         response.send('Plan de estudio creado correctamente');
     });
