@@ -21,6 +21,33 @@ const router = (app) => {
     //     });
     // });
 
+    //nueva modificacion 2 definitiva
+ // post entrada salida de maestro
+ app.post('/entrada/profesores', (request, response) => {
+    const { profesorRFC, fechaHora, entro } = request.body;
+    pool.query('INSERT INTO EntradaMestro (ProfesorRFC, FechaHora, Entro) VALUES (?, ?, ?)', [profesorRFC, fechaHora, entro], (error, result) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Error al crear profesor' });
+        }
+        response.status(201).json({ message: 'Profesor creado correctamente' });
+    });
+});
+
+
+
+    // post entrada salida de maestro
+    app.post('/salida/profesores', (request, response) => {
+        const { profesorRFC, fechaHora, salio } = request.body;
+        pool.query('INSERT INTO SalidaMestro (ProfesorRFC, FechaHora, Salio) VALUES (?, ?, ?)', [profesorRFC, fechaHora, salio], (error, result) => {
+            if (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Error al crear profesor' });
+            }
+            response.status(201).json({ message: 'Profesor creado correctamente' });
+        });
+    });
+
     // Actualizar un profesor existente
     app.put('/profesores/:rfc', (request, response) => {
         const rfc = request.params.rfc;
@@ -305,9 +332,10 @@ app.delete('/departamentos/:id', (request, response) => {
 });
 
 // Crear una nueva materia
+//tabla nueva definitiva
 app.post('/materias', (request, response) => {
-    const { claveMateria, nombre, creditos } = request.body;
-    pool.query('INSERT INTO Materia (ClaveMateria, Nombre, Creditos) VALUES (?, ?, ?)', [claveMateria, nombre, creditos], (error, result) => {
+    const { claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl } = request.body;
+    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, FechaHora, ProfesorRFC, NumeroControl) VALUES (?, ?, ?)', [claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
         if (error) throw error;
         response.send('Materia creada correctamente');
     });
@@ -316,8 +344,8 @@ app.post('/materias', (request, response) => {
 // Actualizar una materia existente
 app.put('/materias/:clave', (request, response) => {
     const clave = request.params.clave;
-    const { nombre, creditos } = request.body;
-    pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, creditos, clave], (error, result) => {
+    const { nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl } = request.body;
+    pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
         if (error) throw error;
         response.send('Materia actualizada correctamente');
     });
