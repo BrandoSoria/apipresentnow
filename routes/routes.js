@@ -1,4 +1,9 @@
 const pool = require('./conexion');
+const express = require('express');
+const moment = require('moment-timezone');
+
+
+const zonaHorariaLocal = 'America/Mexico_City';
 
 
 const router = (app) => {
@@ -9,6 +14,52 @@ const router = (app) => {
         });
     });
 
+
+    
+// Endpoint para registrar asistencia
+app.post('/asistencia', async (req, res) => {
+    try {
+      // Obtenemos la hora actual del sistema operativo
+      const horaActual = moment().format('YYYY-MM-DD HH:mm:ss');
+      
+      // Suponiendo que los datos del alumno y la asistencia están en req.body
+      const { alumnoId, presente } = req.body;
+  
+      // Insertamos la asistencia en la base de datos junto con la hora actual
+      await pool.execute('INSERT INTO Asistencia (AlumnoID, Fecha, Presente) VALUES (?, ?, ?, ?)', [alumnoId,horaActual ,presente]);
+  
+      res.status(200).send('Asistencia registrada exitosamente');
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send('Error en el servidor');
+    }
+  });
+  
+  // Endpoint para obtener asistencias
+  app.get('/asistencia/alumno', async (req, res) => {
+    try {
+      const [asistencias] = await pool.execute('SELECT * FROM Asistencia');
+      
+      const asistenciasFormateadas = asistencias.map(asistencia => {
+        // Convierte `fecha_hora` a la zona horaria local
+        const fechaHoraLocal = moment(asistencia.fecha_hora)
+          .tz(zonaHorariaLocal)
+          .format('YYYY-MM-DD HH:mm:ss');
+  
+        return {
+          id: asistencias.id,
+          AlumnoID: asistencias.alumnoId,
+          fecha_hora: fechaHoraLocal,
+          presente: asistencias.presente,
+        };
+      });
+  
+      res.json(asistenciasFormateadas);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send('Error en el servidor');
+    }
+  });
 
     // // Crear un nuevo profesor
     // app.post('/profesores', (request, response) => {
@@ -245,15 +296,15 @@ app.delete('/departamentos/:id', (request, response) => {
         });
     });
     
-    // Obtener todas las asistencias
-    app.get('/asistencias', (req, res) => {
-        pool.query('SELECT * FROM Asistencia', (error, results) => {
-            if (error) {
-                throw error;
-            }
-            res.status(200).json(results);
-        });
-    });
+    // // Obtener todas las asistencias
+    // app.get('/asistencias', (req, res) => {
+    //     pool.query('SELECT * FROM Asistencia', (error, results) => {
+    //         if (error) {
+    //             throw error;
+    //         }
+    //         res.status(200).json(results);
+    //     });
+    // });
     
     // Obtener una asistencia por su ID
     app.get('/asistencias/:id', (req, res) => {
@@ -266,39 +317,18 @@ app.delete('/departamentos/:id', (request, response) => {
         });
     });
     
-    // Crear una nueva asistencia
-    app.post('/asistencias', (req, res) => {
-        const { AlumnoID, Fecha, Presente } = req.body;
-        pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente) VALUES (?, ?, ?)', [AlumnoID, Fecha, Presente], (error, results) => {
-            if (error) {
-                throw error;
-            }
-            res.status(201).send(`Asistencia añadida con ID: ${results.insertId}`);
-        });
-    });
-    
-    // Actualizar una asistencia
-    app.put('/asistencias/:id', (req, res) => {
-        const id = req.params.id;
-        const { AlumnoID, Fecha, Presente } = req.body;
-        pool.query('UPDATE Asistencia SET AlumnoID = ?, Fecha = ?, Presente = ? WHERE id = ?', [AlumnoID, Fecha, Presente, id], (error, results) => {
-            if (error) {
-                throw error;
-            }
-            res.status(200).send(`Asistencia modificada con ID: ${id}`);
-        });
-    });
-    
-    // Eliminar una asistencia
-    app.delete('/asistencias/:id', (req, res) => {
-        const id = req.params.id;
-        pool.query('DELETE FROM Asistencia WHERE id = ?', id, (error, results) => {
-            if (error) {
-                throw error;
-            }
-            res.status(200).send(`Asistencia eliminada con ID: ${id}`);
-        });
-    });
+    // // Crear una nueva asistencia
+    // app.post('/asistencias', (req, res) => {
+    //     const { AlumnoID, Fecha, Presente } = req.body;
+    //     pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente) VALUES (?, ?, ?)', [AlumnoID, Fecha, Presente], (error, results) => {
+    //         if (error) {
+    //             throw error;
+    //         }
+    //         res.status(201).send(`Asistencia añadida con ID: ${results.insertId}`);
+    //     });
+    // });
+  
+
     
     
     }
