@@ -179,25 +179,12 @@ app.delete('/departamentos/:id', (request, response) => {
         response.status(200).json({ message: 'Departamento eliminado correctamente' });
     });
 });
-    
-    // Crear una nueva materia
-    app.post('/materias', (request, response) => {
-        const { claveMateria, nombre, creditos } = request.body;
-        pool.query('INSERT INTO Materia (ClaveMateria, Nombre, Creditos) VALUES (?, ?, ?)', [claveMateria, nombre, creditos], (error, result) => {
-            if (error) {
-                console.error(error);
-                return response.status(500).json({ error: 'Error al crear materia' });
-            }
-            response.status(201).json({ message: 'Materia creada correctamente' });
-            
-        });
-    });
-    
+   
     // Actualizar una materia existente
     app.put('/materias/:clave', (request, response) => {
         const clave = request.params.clave;
         const { nombre, creditos } = request.body;
-        pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, creditos, clave], (error, result) => {
+        pool.query('UPDATE Materia SET NombreMateria = ?, Semestre = ?, PlanEstudioId = ?, HoraInicio = ?, ProfesorRFC = ?, NumeroControl = ?  WHERE ClaveMateria = ?', [nombre, creditos, clave], (error, result) => {
             if (error) throw error;
             response.send('Materia actualizada correctamente');
         });
@@ -225,7 +212,7 @@ app.delete('/departamentos/:id', (request, response) => {
     app.put('/planesestudio/:id', (request, response) => {
         const id = request.params.id;
         const { nombre } = request.body;
-        pool.query('UPDATE PlanEstudio SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
+        pool.query('UPDATE PlanEstudio SET NombrePlan = ?, CicloEscolar = ? WHERE id = ?', [nombre, id], (error, result) => {
             if (error) throw error;
             response.send('Plan de estudio actualizado correctamente');
         });
@@ -365,8 +352,8 @@ app.delete('/departamentos/:id', (request, response) => {
 // Crear una nueva materia
 //tabla nueva definitiva
 app.post('/materias', (request, response) => {
-    const { claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl } = request.body;
-    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl) VALUES (?, ?, ?)', [claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
+    const { claveMateria, nombre, semestre, planEstudioId, horaInicio, profesorRfc, numeroControl } = request.body;
+    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl) VALUES (?, ?, ?, ?, ?, ?, ?)', [claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
         if (error) throw error;
         response.send('Materia creada correctamente');
     });
@@ -376,7 +363,7 @@ app.post('/materias', (request, response) => {
 app.put('/materias/:clave', (request, response) => {
     const clave = request.params.clave;
     const { nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl } = request.body;
-    pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
+    pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, semestre, planEstudioId, horaInicio, profesorRfc, numeroControl], (error, result) => {
         if (error) throw error;
         response.send('Materia actualizada correctamente');
     });
