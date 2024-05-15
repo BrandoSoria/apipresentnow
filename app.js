@@ -2,18 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-const routes = require('./routes/routes');
+const routes = require('./routes');
 const cors = require('cors');
-//login
-// const { autenticarAlumno, autenticarMaestro } = require('../apipresentnow/routes/auth');
-const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
-
+const router = require('./routes');
+const { autenticarAlumno } = require('./routes/auth');
 const app = express();
-// Aplicar el middleware cors a todas las rutas
-app.use(cors());
-app.use(express.json()); // Para manejar solicitudes JSON nuevo codigo de jwt
-const port = process.env.PORT || 3002;
-
 // Configura middlewares
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -21,13 +14,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(logger('dev'));
 
 // Configura rutas
-routes(app);
+app.use('/', routes); // Utiliza el middleware de las rutas
+const port = process.env.PORT || 3002;
+
+const { autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
+
 
 // Rutas de autenticación
-app.post('/login/alumno', autenticarAlumno);
-app.post('/login/maestro', autenticarMaestro);
-app.post('/login/crear/maestro', crearMaestro);
-app.post('/login/crear/alumno', crearAlumno);
+router.post('/login/alumno', autenticarAlumno);
+router.post('/login/maestro', autenticarMaestro);
+router.post('/login/crear/maestro', crearMaestro);
+router.post('/login/crear/alumno', crearAlumno);
 
 // Maneja rutas no definidas (404)
 app.use((req, res, next) => {

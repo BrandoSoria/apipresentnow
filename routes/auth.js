@@ -1,9 +1,10 @@
 // Importa las dependencias necesarias
+const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
 const db = require('./conexion');
 const dotenv = require('dotenv');
-
+const router = express.Router();
 // Carga las variables de entorno
 dotenv.config();
 
