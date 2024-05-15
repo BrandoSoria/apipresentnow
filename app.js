@@ -3,10 +3,11 @@ const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
-const cors = require('cors');
-const router = require('./routes');
-const { autenticarAlumno } = require('./routes/auth');
+const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
+
 const app = express();
+const port = process.env.PORT || 3002;
+
 // Configura middlewares
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -15,16 +16,12 @@ app.use(logger('dev'));
 
 // Configura rutas
 app.use('/', routes); // Utiliza el middleware de las rutas
-const port = process.env.PORT || 3002;
-
-const { autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
-
 
 // Rutas de autenticación
-router.post('/login/alumno', autenticarAlumno);
-router.post('/login/maestro', autenticarMaestro);
-router.post('/login/crear/maestro', crearMaestro);
-router.post('/login/crear/alumno', crearAlumno);
+app.post('/login/alumno', autenticarAlumno);
+app.post('/login/maestro', autenticarMaestro);
+app.post('/login/crear/maestro', crearMaestro);
+app.post('/login/crear/alumno', crearAlumno);
 
 // Maneja rutas no definidas (404)
 app.use((req, res, next) => {
