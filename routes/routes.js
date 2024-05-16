@@ -8,64 +8,6 @@ const router = (app) => {
         });
     });
 
-
-   
-    // Actualizar un profesor existente
-    app.put('/profesores/:rfc', (request, response) => {
-        const rfc = request.params.rfc;
-        const { nombre, departamento } = request.body;
-        pool.query('UPDATE Profesores SET Nombre = ?, Departamento = ? WHERE RFC = ?', [nombre, departamento, rfc], (error, result) => {
-            if (error) {
-                console.error(error);
-                return response.status(500).json({ error: 'Error al actualizar profesor' });
-            }
-            response.json({ message: 'Profesor actualizado correctamente' });
-        });
-    });
-
-    // Eliminar un profesor
-    app.delete('/profesores/:rfc', (request, response) => {
-        const rfc = request.params.rfc;
-        pool.query('DELETE FROM Profesores WHERE RFC = ?', [rfc], (error, result) => {
-            if (error) {
-                console.error(error);
-                return response.status(500).json({ error: 'Error al eliminar profesor' });
-            }
-            response.json({ message: 'Profesor eliminado correctamente' });
-        });
-    });
-
-
-
-// Define más rutas aquí usando `app`...
-
-   
-    
-   
-
-    // Actualizar un alumno existente
-    app.put('/alumnos/:numerocontrol', (request, response) => {
-        const numerocontrol = request.params.numerocontrol;
-        const { nombre, carrera } = request.body;
-        pool.query('UPDATE Alumno SET Nombre = ?, Carrera = ? WHERE NumeroControl = ?', [nombre, carrera, numerocontrol], (error, result) => {
-            if (error) throw error;
-            response.send('Alumno actualizado correctamente');
-        });
-    });
-    
-    // Eliminar un alumno
-    app.delete('/alumnos/:numerocontrol', (request, response) => {
-        const numerocontrol = request.params.numerocontrol;
-        pool.query('DELETE FROM Alumno WHERE NumeroControl = ?', numerocontrol, (error, result) => {
-            if (error) throw error;
-            response.send('Alumno eliminado correctamente');
-        });
-    });
-    
- 
-
-        
-
 // Crear un nuevo departamento 4
 app.post('/departamentos', (request, response) => {
     const { nombre } = request.body;
@@ -124,37 +66,10 @@ app.delete('/planesestudio/:id', (request, response) => {
 });
 
 
-// Actualizar un alumno existente
-app.put('/alumnos/:numerocontrol', (request, response) => {
-    const numerocontrol = request.params.numerocontrol;
-    const { nombre, carrera } = request.body;
-    pool.query('UPDATE Alumno SET Nombre = ?, Carrera = ? WHERE NumeroControl = ?', [nombre, carrera, numerocontrol], (error, result) => {
-        if (error) throw error;
-        response.send('Alumno actualizado correctamente');
-    });
-});
 
-// Eliminar un alumno
-app.delete('/alumnos/:numerocontrol', (request, response) => {
-    const numerocontrol = request.params.numerocontrol;
-    pool.query('DELETE FROM Alumno WHERE NumeroControl = ?', numerocontrol, (error, result) => {
-        if (error) throw error;
-        response.send('Alumno eliminado correctamente');
-    });
-});
 
 // los get
 
-    // Ruta para obtener todos los profesores
-    app.get('/profesores', (req, res) => {
-        pool.query('SELECT * FROM Profesores', (error, results) => {
-            if (error) {
-                console.error(error);
-                return res.status(500).json({ error: 'Error al obtener profesores' });
-            }
-            res.status(200).json(results);
-        });
-    });
 
     // Ruta para obtener todos los departamentos s
     app.get('/departamentos', (req, res) => {
@@ -178,32 +93,8 @@ app.delete('/alumnos/:numerocontrol', (request, response) => {
         });
     });
 
-    // Ruta para obtener todos los alumnos
-    app.get('/alumnos', (req, res) => {
-        pool.query('SELECT * FROM Alumno', (error, results) => {
-            if (error) {
-                console.error(error);
-                return res.status(500).json({ error: 'Error al obtener alumnos' });
-            }
-            res.status(200).json(results);
-        });
-    });
 
-    
-    // Obtener un profesor por su RFC
-    app.get('/profesores/:rfc', (req, res) => {
-        const rfc = req.params.rfc;
-        pool.query('SELECT * FROM Profesores WHERE RFC = ?', [rfc], (error, results) => {
-            if (error) {
-                console.error(error);
-                return res.status(500).json({ error: 'Error al obtener profesor' });
-            }
-            if (results.length === 0) {
-                return res.status(404).json({ error: 'Profesor no encontrado' });
-            }
-            res.status(200).json(results[0]);
-        });
-    });
+   
 
 // Crear una nueva materia
 app.post('/materias', (request, response) => {
@@ -284,22 +175,6 @@ app.get('/materias/:ClaveMateria', (req, res) => {
             res.status(200).json(results[0]);
         });
     });
-
-    // Obtener un alumno por su número de control
-    app.get('/alumnos/:numerocontrol', (req, res) => {
-        const numerocontrol = req.params.numerocontrol;
-        pool.query('SELECT * FROM Alumno WHERE NumeroControl = ?', [numerocontrol], (error, results) => {
-            if (error) {
-                console.error(error);
-                return res.status(500).json({ error: 'Error al obtener alumno' });
-            }
-            if (results.length === 0) {
-                return res.status(404).json({ error: 'Alumno no encontrado' });
-            }
-            res.status(200).json(results[0]);
-        });
-    });
-
 }
 
 
