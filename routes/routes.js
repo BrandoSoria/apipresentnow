@@ -39,8 +39,8 @@ app.delete('/departamentos/:id', (request, response) => {
 
 // Crear un nuevo plan de estudio
 app.post('/planesestudio', (request, response) => {
-    const { id, nombrePlan, cicloEscolar } = request.body;
-    pool.query('INSERT INTO PlanEstudio (id, NombrePlan, CicloEscolar) VALUES (?)', [id, nombrePlan, cicloEscolar], (error, result) => {
+    const {  nombrePlan, cicloEscolar } = request.body;
+    pool.query('INSERT INTO PlanEstudio ( NombrePlan, CicloEscolar) VALUES (?, ?)', [ nombrePlan, cicloEscolar], (error, result) => {
         if (error) throw error;
         response.send('Plan de estudio creado correctamente');
     });
