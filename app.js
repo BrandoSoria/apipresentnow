@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/routes');
+const alumnos = require('./routes/models/alumno');
+const maestros = require('./routes/models/maestros');
 const cors = require('cors');
 //login
 // const { autenticarAlumno, autenticarMaestro } = require('../apipresentnow/routes/auth');
@@ -22,6 +24,8 @@ app.use(logger('dev'));
 
 // Configura rutas
 routes(app);
+maestros(app);
+alumnos(app);
 
 // Rutas de autenticación
 app.post('/login/alumno', autenticarAlumno);
