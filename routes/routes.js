@@ -63,8 +63,7 @@ const router = (app) => {
     });
     
  
-    
-    }
+
         
 
 // Crear un nuevo departamento 4
@@ -301,7 +300,7 @@ app.get('/materias/:ClaveMateria', (req, res) => {
         });
     });
 
-  
+}
 
 
 module.exports = router;
