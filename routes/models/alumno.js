@@ -69,18 +69,21 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
  });
 
 
-app.get('/asistencias', (request, response) => {
-    pool.query('SELECT DATE_FORMAT(AlumnoID,Fecha,Presente,materiaId, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM Asistencia', (error, results) => {
-        if (error) {
-            console.error('Error al obtener las asistencias:', error);
-            return response.status(500).json({ error: 'Error interno del servidor' });
-        }
-        const fechasFormateadas = results.map(asistencia => {
-            const fecha = moment.tz(asistencia.fechaConHora, 'America/Mexico_City').format();
-            return { fecha };
-        });
-        response.status(200).json(fechasFormateadas);
-    });
+ app.get('/asistencias', (request, response) => {
+    pool.query('SELECT * FROM Asistencia', (error, results) => {
+         if (error) {
+             console.error('Error al obtener las asistencias:', error);
+             return response.status(500).json({ error: 'Error interno del servidor' });
+         }
+        const asistenciasFormateadas = results.map(asistencia => {
+            const fechaFormateada = moment.tz(asistencia.Fecha, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+            return {
+                ...asistencia,
+                Fecha: fechaFormateada
+            };
+         });
+       response.status(200).json(asistenciasFormateadas);
+     });
 });
 
 }
