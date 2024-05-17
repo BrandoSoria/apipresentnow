@@ -1,3 +1,5 @@
+const { moment } = require('moment-timezone');
+
 const pool = require('../conexion');
 
 
@@ -51,9 +53,29 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
             response.send('Alumno eliminado correctamente ${numerocontrol}');
         });
     });
+
+    app.get('/asistencias', (request, response) => {
+        pool.query('SELECT * FROM Asistencia', (error, results) => {
+            if (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Error al obtener asistencias' });
+            }
+            response.status(200).json(results);
+        });
+    });
     
+app.post('/asistencias', (request, response) => {
+    const { AlumnoID, Fecha, Presente, materiaId } = request.body;
+    const hora = moment().tz('America/Mexico_City').format('HH:mm:ss');
+    pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', [AlumnoID,Fecha, Presente, materiaId], (error, result) => {
+        if (error) {
+            console.error('Error al registrar la asistencia:', error);
+            return response.status(500).json({ error: 'Error interno del servidor' });
+        }
+        response.status(201).json({ message: 'Asistencia registrada correctamente de alumno ${AlumnoID}'});
+    });
+});
 
 }
-
 
 module.exports = router;
