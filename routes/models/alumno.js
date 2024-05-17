@@ -1,5 +1,4 @@
-const { moment } = require('moment-timezone');
-
+const moment = require('moment-timezone');
 const pool = require('../conexion');
 
 
