@@ -56,7 +56,7 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
 
     
 app.post('/asistencias', (request, response) => {
-    const { numeroControl } = request.body;
+    const { numeroControl, presente, materiaId } = request.body;
     const Fecha = moment().tz('America/Mexico_City').format('HH:mm:ss');
     pool.query('INSERT INTO Asistencia (NumeroControl, Fecha, Presente,materiaId) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, materiaId], (error, result) => {
         if (error) {
