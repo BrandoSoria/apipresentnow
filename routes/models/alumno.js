@@ -57,8 +57,8 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
     
 app.post('/asistencias', (request, response) => {
     const { numeroControl, presente, materiaId } = request.body;
-    const Fecha = moment().tz('America/Mexico_City').format('HH:mm:ss');
-    pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente,materiaId) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, materiaId], (error, result) => {
+    const Fecha = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss'); // Agregar la fecha completa
+    pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, materiaId], (error, result) => {
         if (error) {
             console.error('Error al registrar la asistencia:', error);
             return response.status(500).json({ error: 'Error interno del servidor' });
@@ -66,6 +66,7 @@ app.post('/asistencias', (request, response) => {
         response.status(201).json({ message: 'Asistencia registrada correctamente' });
     });
 });
+
 
 app.get('/asistencias', (request, response) => {
     pool.query('SELECT * FROM Asistencia', (error, results) => {
