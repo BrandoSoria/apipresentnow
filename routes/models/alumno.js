@@ -68,17 +68,21 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
       });
  });
 
-
+ // Obtener todas las asistencias+
 app.get('/asistencias', (request, response) => {
-    pool.query('SELECT * FROM Asistencia', (error, results) => {
+    pool.query('SELECT DATE_FORMAT(Fecha, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM Asistencia', (error, results) => {
         if (error) {
             console.error('Error al obtener las asistencias:', error);
             return response.status(500).json({ error: 'Error interno del servidor' });
         }
-        response.status(200).json(results);
+        const formattedDates = results.map(result => {
+            const fecha = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+            return { fecha };
+        });
+        response.status(200).json(formattedDates);
     });
-}); 
+});
 
-}
 
 module.exports = router;
+}
