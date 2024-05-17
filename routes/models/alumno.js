@@ -64,7 +64,6 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
               console.error('Error al registrar la asistencia:', error);
               return response.status(500).json({ error: 'Error interno del servidor' });
           }
-          response.result('${fecha}');
           response.status(201).json({ message: 'Asistencia registrada correctamente a las ${Fecha}' });
       });
  });
