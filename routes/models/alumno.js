@@ -70,7 +70,7 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
 
 
 app.get('/asistencias', (request, response) => {
-    pool.query('SELECT DATE_FORMAT(Fecha, "%Y-%m-%dT%H:%i:%s") AS fechaConHora FROM Asistencia', (error, results) => {
+    pool.query('SELECT DATE_FORMAT(AlumnoID,Fecha,Presente,materiaId, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM Asistencia', (error, results) => {
         if (error) {
             console.error('Error al obtener las asistencias:', error);
             return response.status(500).json({ error: 'Error interno del servidor' });
