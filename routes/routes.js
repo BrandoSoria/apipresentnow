@@ -8,12 +8,16 @@ const router = (app) => {
         });
     });
 
+    app.pool = pool;
+
+        
+
 // Crear un nuevo departamento 4
 app.post('/departamentos', (request, response) => {
     const { nombre } = request.body;
     pool.query('INSERT INTO Departamento (Nombre) VALUES (?)', [nombre], (error, result) => {
         if (error) throw error;
-        response.send('Departamento creado correctamente');
+        response.send('Departamento creado correctamente ${nombre}');
     });
 });
 
@@ -23,7 +27,7 @@ app.put('/departamentos/:id', (request, response) => {
     const { nombre } = request.body;
     pool.query('UPDATE Departamento SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
         if (error) throw error;
-        response.send('Departamento actualizado correctamente');
+        response.send('Departamento actualizado correctamente ${id}');
     });
 });
 
@@ -32,7 +36,7 @@ app.delete('/departamentos/:id', (request, response) => {
     const id = request.params.id;
     pool.query('DELETE FROM Departamento WHERE id = ?', id, (error, result) => {
         if (error) throw error;
-        response.send('Departamento eliminado correctamente');
+        response.send('Departamento eliminado correctamente ${id}');
     });
 });
 
@@ -42,7 +46,7 @@ app.post('/planesestudio', (request, response) => {
     const {  nombrePlan, cicloEscolar } = request.body;
     pool.query('INSERT INTO PlanEstudio ( NombrePlan, CicloEscolar) VALUES (?, ?)', [ nombrePlan, cicloEscolar], (error, result) => {
         if (error) throw error;
-        response.send('Plan de estudio creado correctamente');
+        response.send('Plan de estudio creado correctamente ${id}');
     });
 });
 
@@ -52,7 +56,7 @@ app.put('/planesestudio/:id', (request, response) => {
     const { nombrePlan, cicloEscolar } = request.body;
     pool.query('UPDATE PlanEstudio SET NombrePlan = ?, CicloEscolar = ? WHERE id = ?', [nombrePlan, cicloEscolar], (error, result) => {
         if (error) throw error;
-        response.send('Plan de estudio actualizado correctamente');
+        response.send('Plan de estudio actualizado correctamente ${id}');
     });
 });
 
@@ -61,7 +65,7 @@ app.delete('/planesestudio/:id', (request, response) => {
     const id = request.params.id;
     pool.query('DELETE FROM PlanEstudio WHERE id = ?', id, (error, result) => {
         if (error) throw error;
-        response.send('Plan de estudio eliminado correctamente');
+        response.send('plan de estudio eliminado correctamente ${id}');
     });
 });
 
@@ -79,6 +83,8 @@ app.delete('/planesestudio/:id', (request, response) => {
                 return res.status(500).json({ error: 'Error al obtener departamentos' });
             }
             res.status(200).json(results);
+            req.log.info(results);
+            console.log(results);
         });
     });
 
@@ -90,22 +96,25 @@ app.delete('/planesestudio/:id', (request, response) => {
                 return res.status(500).json({ error: 'Error al obtener planes de estudio' });
             }
             res.status(200).json(results);
+            console.log(results);
         });
     });
 
 
+    
    
 
 // Crear una nueva materia
 app.post('/materias', (request, response) => {
-    const { ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl } = request.body;
-    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-        [ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl], (error, result) => {
+    const { ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl, aula } = request.body;
+    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl, aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+        [ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl, aula], (error, result) => {
         if (error) {
             console.error(error);
             return response.status(500).json({ error: 'Error al crear materia' });
         }
         response.status(201).json({ message: 'Materia creada correctamente' });
+        console.log('se agrego registro en la base de datos con clave materia ${ClaveMateria}');
     });
 });
 
@@ -120,6 +129,7 @@ app.put('/materias/:ClaveMateria', (request, response) => {
             return response.status(500).json({ error: 'Error al actualizar materia' });
         }
         response.status(200).json({ message: 'Materia actualizada correctamente' });
+        console.log('se actualizo registro en la base de datos con clave materia ${ClaveMateria}');
     });
 });
 
@@ -132,6 +142,7 @@ app.delete('/materias/:ClaveMateria', (request, response) => {
             return response.status(500).json({ error: 'Error al eliminar materia' });
         }
         response.status(200).json({ message: 'Materia eliminada correctamente' });
+        console.log('se elimino registro en la base de datos con clave materia ${ClaveMateria}');
     });
 });
 
@@ -158,6 +169,7 @@ app.get('/materias/:ClaveMateria', (req, res) => {
             return res.status(404).json({ error: 'Materia no encontrada' });
         }
         res.status(200).json(results[0]);
+        
     });
 });
 
@@ -173,6 +185,7 @@ app.get('/materias/:ClaveMateria', (req, res) => {
                 return res.status(404).json({ error: 'Plan de estudio no encontrado' });
             }
             res.status(200).json(results[0]);
+            console.log('se obtuvo registro en la base de datos con id ${id}');
         });
     });
 }

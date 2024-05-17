@@ -29,6 +29,7 @@ const router = (app) => {
                 return res.status(404).json({ error: 'Alumno no encontrado' });
             }
             res.status(200).json(results[0]);
+            console.log("con id ${numerocontrol}");
         });
     });
 
@@ -39,7 +40,7 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
     const { nombre, carrera } = request.body;
     pool.query('UPDATE Alumno SET Nombre = ?, Carrera = ? WHERE NumeroControl = ?', [nombre, carrera, numerocontrol], (error, result) => {
         if (error) throw error;
-        response.send('Alumno actualizado correctamente');
+        response.send('Alumno actualizado correctamente ${numerocontrol}');
     });
 });
     // Eliminar un alumno
@@ -47,7 +48,7 @@ app.put('/alumnos/:numerocontrol', (request, response) => {
         const numerocontrol = request.params.numerocontrol;
         pool.query('DELETE FROM Alumno WHERE NumeroControl = ?', numerocontrol, (error, result) => {
             if (error) throw error;
-            response.send('Alumno eliminado correctamente');
+            response.send('Alumno eliminado correctamente ${numerocontrol}');
         });
     });
     

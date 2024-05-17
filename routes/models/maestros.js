@@ -28,6 +28,7 @@ const router = (app) => {
                 return res.status(404).json({ error: 'Profesor no encontrado' });
             }
             res.status(200).json(results[0]);
+            console.log("con id ${rfc}");
         });
     });
     
@@ -40,7 +41,7 @@ const router = (app) => {
                 console.error(error);
                 return response.status(500).json({ error: 'Error al actualizar profesor' });
             }
-            response.json({ message: 'Profesor actualizado correctamente' });
+            response.json({ message: 'Profesor actualizado correctamente con RFC ${rfc}' });
         });
     });
 
@@ -52,7 +53,7 @@ const router = (app) => {
                 console.error(error);
                 return response.status(500).json({ error: 'Error al eliminar profesor' });
             }
-            response.json({ message: 'Profesor eliminado correctamente' });
+            response.json({ message: 'Profesor eliminado correctamente con RFC ${rfc}' });
         });
     });
 
