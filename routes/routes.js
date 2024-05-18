@@ -40,7 +40,15 @@ app.delete('/departamentos/:id', (request, response) => {
     });
 });
 
-
+app.get('/departamentos', (request, response) => {
+    pool.query('SELECT * FROM Departamento', (error, results) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Error interno del servidor' });
+        }
+        return response.status(200).json(results);
+    });
+});
 // Crear un nuevo plan de estudio
 app.post('/planesestudio', (request, response) => {
     const {  nombrePlan, cicloEscolar } = request.body;
@@ -70,23 +78,6 @@ app.delete('/planesestudio/:id', (request, response) => {
 });
 
 
-
-
-// los get
-
-
-    // Ruta para obtener todos los departamentos s
-    app.get('/departamentos', (req, res) => {
-        pool.query('SELECT * FROM Departamento', (error, results) => {
-            if (error) {
-                console.error(error);
-                return res.status(500).json({ error: 'Error al obtener departamentos' });
-            }
-            res.status(200).json(results);
-            req.log.info(results);
-            console.log(results);
-        });
-    });
 
     // Ruta para obtener todos los planes de estudio
     app.get('/planesestudio', (req, res) => {
