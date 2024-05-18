@@ -41,6 +41,10 @@ app.use((req, res, next) => {
 // Maneja errores
 app.use((error, req, res, next) => {
     console.error(error);
+    if (error.code === 'PROTOCOL_CONNECTION_LOST') {
+        // Error de conexión a la base de datos
+        return res.status(500).json({ error: 'Error interno del servidor: Conexión a la base de datos cerrada' });
+    }
     res.status(500).json({ error: 'Error interno del servidor' });
 });
 
