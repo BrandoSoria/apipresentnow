@@ -12,7 +12,7 @@ dotenv.config();
 // Importar las rutas y controladores
 const routes = require('./routes/routes');
 const alumnos = require('./routes/models/alumno');
-const maestros = require('./routes/models/maestros');
+const maestros = require('./routes/models/maestro');
 const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
 
 // Crear instancia de la aplicación Express
@@ -63,3 +63,5 @@ const server = app.listen(port, (error) => {
     }
     console.log(`Servidor escuchando en el puerto ${server.address().port}`);
 });
+
+module.exports = app; // Para facilitar pruebas y reutilización
