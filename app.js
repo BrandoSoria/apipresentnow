@@ -1,28 +1,35 @@
+// Importar dependencias
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const dotenv = require('dotenv');
+
+// Cargar variables de entorno
+dotenv.config();
+
+// Importar las rutas y controladores
 const routes = require('./routes/routes');
 const alumnos = require('./routes/models/alumno');
 const maestros = require('./routes/models/maestros');
-const cors = require('cors');
-//login
-// const { autenticarAlumno, autenticarMaestro } = require('../apipresentnow/routes/auth');
 const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
 
+// Crear instancia de la aplicación Express
 const app = express();
-// Aplicar el middleware cors a todas las rutas
-app.use(cors());
-app.use(express.json()); // Para manejar solicitudes JSON nuevo codigo de jwt
+
+// Configuración del puerto
 const port = process.env.PORT || 3002;
 
-// Configura middlewares
-app.use(cookieParser());
+// Configurar middlewares
+app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(logger('dev'));
+app.use(cookieParser());
 
-// Configura rutas
+// Configurar rutas
 routes(app);
 maestros(app);
 alumnos(app);
