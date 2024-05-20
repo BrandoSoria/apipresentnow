@@ -1,4 +1,4 @@
-const pool = require('../conexion');
+const pool = require('./conexion');
 
 const router = (app) => {
     // Ruta de bienvenida
