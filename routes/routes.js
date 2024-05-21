@@ -190,7 +190,7 @@ const router = (app) => {
    app.post('/aulas', async (request, response) => {
     const { ClaveAula, nombre } = request.body;
     try {
-        await pool.query('INSERT INTO Materia (ClaveAula, Nombre) VALUES (?, ?)', 
+        await pool.query('INSERT INTO Aulas (ClaveAula, Nombre) VALUES (?, ?)', 
             [ClaveAula, nombre]);
         response.status(201).json({ message: 'Aula creada correctamente' });
     } catch (error) {
