@@ -190,6 +190,10 @@ const router = (app) => {
    app.post('/aulas', async (request, response) => {
     const { ClaveAula, nombre } = request.body;
     try {
+        const [existingAula] = await pool.query('SELECT * FROM Aulas WHERE ClaveAula = ?', [ClaveAula]);
+        if (existingAula.length > 0) {
+            return res.status(400).json({ error: 'La Clave de Aula ya está en uso' });
+        }
         await pool.query('INSERT INTO Aulas (ClaveAula, Nombre) VALUES (?, ?)', 
             [ClaveAula, nombre]);
         response.status(201).json({ message: 'Aula creada correctamente' });
@@ -198,7 +202,6 @@ const router = (app) => {
         response.status(500).json({ error: 'Error al crear Aula' });
     }
 });
-
 app.get('/aulas', async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Aulas');
