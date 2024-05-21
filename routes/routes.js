@@ -201,7 +201,7 @@ const router = (app) => {
 
 app.get('/aulas', async (req, res) => {
     try {
-        const [results] = await pool.query('SELECT * FROM Aula');
+        const [results] = await pool.query('SELECT * FROM Aulas');
         res.status(200).json(results);
     } catch (error) {
         console.error(error);
