@@ -185,6 +185,20 @@ const router = (app) => {
             res.status(500).json({ error: 'Error al obtener materia' });
         }
     });
+
+   // Crear una nueva materia
+   app.post('/aulas', async (request, response) => {
+    const { ClaveAula, nombre } = request.body;
+    try {
+        await pool.query('INSERT INTO Materia (ClaveAula, Nombre) VALUES (?, ?)', 
+            [ClaveAula, nombre]);
+        response.status(201).json({ message: 'Aula creada correctamente' });
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: 'Error al crear Aula' });
+    }
+});
+
 }
 
 module.exports = router;
