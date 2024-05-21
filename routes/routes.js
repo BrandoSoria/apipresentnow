@@ -199,6 +199,16 @@ const router = (app) => {
     }
 });
 
+app.get('/aulas', async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT * FROM Aula');
+        res.status(200).json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener Aulas' });
+    }
+});
+
 }
 
 module.exports = router;
