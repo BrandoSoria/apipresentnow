@@ -59,7 +59,7 @@ const router = (app) => {
         const { profesorRfc, entro, aula } = req.body;
         const FechaHora = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
         try {
-            await pool.query('INSERT INTO EntradaMaestro (ProfesorRFC, FechaHora, Entro, aula) VALUES (?, ?, ?)', [profesorRfc, FechaHora, entro, aula]);
+            await pool.query('INSERT INTO EntradaMaestro (ProfesorRFC, FechaHora, Entro, aula) VALUES (?, ?, ?, ?)', [profesorRfc, FechaHora, entro, aula]);
             res.status(201).json({ message: 'Asistencia registrada correctamente' });
         } catch (error) {
             console.error('Error al registrar la asistencia:', error);
