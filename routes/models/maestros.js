@@ -1,9 +1,9 @@
+const { body, validationResult } = require('express-validator');
 const moment = require('moment-timezone');
 const pool = require('../conexion');
 
 const router = (app) => {
-
-    // Ruta para obtener todos los profesores
+    // Obtener todos los profesores
     app.get('/profesores', async (req, res) => {
         try {
             const [results] = await pool.query('SELECT * FROM Profesores');
@@ -54,8 +54,17 @@ const router = (app) => {
         }
     });
 
-    // Entrada de profesor
-    app.post('/entrada/profesor', async (req, res) => {
+    // Registrar entrada de profesor
+    app.post('/entrada/profesor', [
+        body('profesorRfc').notEmpty().withMessage('El RFC del profesor es obligatorio'),
+        body('entro').notEmpty().withMessage('El campo "entro" es obligatorio'),
+        body('aula').notEmpty().withMessage('El aula es obligatoria')
+    ], async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
         const { profesorRfc, entro, aula } = req.body;
         const FechaHora = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
         try {
@@ -98,8 +107,16 @@ const router = (app) => {
         }
     });
 
-    // Salida de profesor
-    app.post('/salida/profesor', async (req, res) => {
+    // Registrar salida de profesor
+    app.post('/salida/profesor', [
+        body('profesorRfc').notEmpty().withMessage('El RFC del profesor es obligatorio'),
+        body('salida').notEmpty().withMessage('El campo "salida" es obligatorio')
+    ], async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
         const { profesorRfc, salida } = req.body;
         const fecha = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
         try {
