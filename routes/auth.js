@@ -48,6 +48,7 @@ async function crearAlumno(req, res) {
 }
 
 // Función para autenticar alumnos
+// ademas de solo mostrar las materias en las que esta ese alumno que inicio sesion
 async function autenticarAlumno(req, res) {
     const { numeroControl, password } = req.body;
 
@@ -62,6 +63,22 @@ async function autenticarAlumno(req, res) {
         if (!match) {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
+
+        // Consulta para obtener las materias del alumno
+        const [materiasResults] = await pool.query(
+            `SELECT Materias.ClaveMateria, Materias.NombreMateria
+             FROM AlxGpo
+             JOIN Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
+             JOIN Materias ON Grupo.Id_Materia = Materias.ClaveMateria
+             WHERE AlxGpo.NumeroControl = ?`,
+            [numeroControl]
+        );
+
+        // Obtener las materias como un arreglo de objetos { ClaveMateria, NombreMateria }
+        const materias = materiasResults.map(row => ({
+            ClaveMateria: row.ClaveMateria,
+            NombreMateria: row.NombreMateria
+        }));
 
         const [roleResults] = await pool.query(
             `SELECT Roles.Nombre AS rol, GROUP_CONCAT(Permisos.Nombre) AS permisos
@@ -79,7 +96,8 @@ async function autenticarAlumno(req, res) {
             {
                 id: alumno.NumeroControl,
                 role: rol,
-                permisos: permisos
+                permisos: permisos,
+                materias: materias // Incluir las materias en el token
             },
             secretKey,
             { expiresIn: '1h' }
@@ -91,6 +109,7 @@ async function autenticarAlumno(req, res) {
         res.status(500).json({ error: 'Error al autenticar alumno' });
     }
 }
+
 
 // Función para autenticar maestros
 async function autenticarMaestro(req, res) {
