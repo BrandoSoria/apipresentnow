@@ -64,6 +64,9 @@ async function autenticarAlumno(req, res) {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
 
+        // Debugging: Imprimir los resultados de la consulta SQL
+        console.log('Resultados de la consulta de materias:', results);
+
         // Consulta para obtener las materias del alumno
         const [materiasResults] = await pool.query(
             `SELECT Materias.ClaveMateria, Materias.NombreMateria
@@ -79,6 +82,9 @@ async function autenticarAlumno(req, res) {
             ClaveMateria: row.ClaveMateria,
             NombreMateria: row.NombreMateria
         }));
+
+        // Debugging: Imprimir las materias obtenidas
+        console.log('Materias del alumno:', materias);
 
         const [roleResults] = await pool.query(
             `SELECT Roles.Nombre AS rol, GROUP_CONCAT(Permisos.Nombre) AS permisos
@@ -104,6 +110,7 @@ async function autenticarAlumno(req, res) {
         );
 
         res.json({ token });
+        
     } catch (error) {
         console.error('Error al autenticar alumno:', error);
         res.status(500).json({ error: 'Error al autenticar alumno' });
