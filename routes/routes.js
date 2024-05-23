@@ -123,10 +123,10 @@ const router = (app) => {
 
     // Crear una nueva materia
     app.post('/materias', async (request, response) => {
-        const { ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl, aula } = request.body;
+        const { ClaveMateria, NombreMateria, Semestre } = request.body;
         try {
-            await pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl, aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                [ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl, aula]);
+            await pool.query('INSERT INTO Materias (ClaveMateria, NombreMateria, Semestre) VALUES (?, ?, ?)', 
+                [ClaveMateria, NombreMateria, Semestre]);
             response.status(201).json({ message: 'Materia creada correctamente' });
         } catch (error) {
             console.error(error);
@@ -137,10 +137,10 @@ const router = (app) => {
     // Actualizar una materia existente
     app.put('/materias/:ClaveMateria', async (request, response) => {
         const ClaveMateria = request.params.ClaveMateria;
-        const { NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl } = request.body;
+        const { NombreMateria, Semestre } = request.body;
         try {
-            await pool.query('UPDATE Materia SET NombreMateria = ?, Semestre = ?, PlanEstudioId = ?, HoraInicio = ?, ProfesorRFC = ?, NumeroControl = ? WHERE ClaveMateria = ?', 
-                [NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl, ClaveMateria]);
+            await pool.query('UPDATE Materias SET NombreMateria = ?, Semestre = ?, PlanEstudioId = ?, HoraInicio = ?, ProfesorRFC = ?, NumeroControl = ? WHERE ClaveMateria = ?', 
+            [ClaveMateria, NombreMateria, Semestre]);
             response.status(200).json({ message: 'Materia actualizada correctamente' });
         } catch (error) {
             console.error(error);
@@ -152,7 +152,7 @@ const router = (app) => {
     app.delete('/materias/:ClaveMateria', async (request, response) => {
         const ClaveMateria = request.params.ClaveMateria;
         try {
-            await pool.query('DELETE FROM Materia WHERE ClaveMateria = ?', [ClaveMateria]);
+            await pool.query('DELETE FROM Materias WHERE ClaveMateria = ?', [ClaveMateria]);
             response.status(200).json({ message: 'Materia eliminada correctamente' });
         } catch (error) {
             console.error(error);
@@ -163,7 +163,7 @@ const router = (app) => {
     // Obtener todas las materias
     app.get('/materias', async (req, res) => {
         try {
-            const [results] = await pool.query('SELECT * FROM Materia');
+            const [results] = await pool.query('SELECT * FROM Materias');
             res.status(200).json(results);
         } catch (error) {
             console.error(error);
@@ -175,7 +175,7 @@ const router = (app) => {
     app.get('/materias/:ClaveMateria', async (req, res) => {
         const ClaveMateria = req.params.ClaveMateria;
         try {
-            const [results] = await pool.query('SELECT * FROM Materia WHERE ClaveMateria = ?', [ClaveMateria]);
+            const [results] = await pool.query('SELECT * FROM Materias WHERE ClaveMateria = ?', [ClaveMateria]);
             if (results.length === 0) {
                 return res.status(404).json({ error: 'Materia no encontrada' });
             }
@@ -215,6 +215,172 @@ app.get('/aulas', async (req, res) => {
     }
 });
 
+
+//nuevo grupos
+
+app.post('/grupo', async (request, response) =>
+{
+    const { idGrupo, Id_Materia, Hora, Aula, RFCDocente, NombreGrupo } = request.body;
+    if (!idGrupo || !Id_Materia || !Hora || !Aula || !RFCDocente || !NombreGrupo) {
+        return response.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+    try {
+        const [existingGroup] = await pool.query('SELECT * FROM Grupo WHERE idGrupo = ?', [idGrupo]);
+        if (existingGroup.length > 0) {
+            return res.status(400).json({ error: 'El grupo ya existe' });
+        }
+        await pool.query('INSERT INTO Grupo (idGrupo, Id_Materia, Hora, Aula, RFCDocente, NombreGrupo) VALUES (?, ?, ?, ?, ?, ?)', [idGrupo, Id_Materia, Hora, Aula, RFCDocente, NombreGrupo]);
+        response.status(201).json({ message: 'Grupo creado correctamente' });
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: 'Error al crear grupo' });
+    }
+});
+
+app.get('/grupo', async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT * FROM Grupo');
+        res.status(200).json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener grupos' });
+    }
+}); 
+//materia por id
+app.get('/grupo/:idGrupo', async (req, res) => {
+    const idGrupo = req.params.idGrupo;
+    try {
+        const [results] = await pool.query('SELECT * FROM Grupo WHERE idGrupo = ?', [idGrupo]);
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Grupo no encontrado' });
+        }
+        res.status(200).json(results[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener grupo' });
+    }
+});
+
+// Actualizar un grupo existente
+app.put('/grupo/:idGrupo', async (req, res) => {
+    const idGrupo = req.params.idGrupo;
+    const { Id_Materia, Hora, Aula, RFCDocente, NombreGrupo } = req.body;
+    try {
+        const [existingGroup] = await pool.query('SELECT * FROM Grupo WHERE idGrupo = ?', [idGrupo]);
+        if (existingGroup.length === 0) {
+            return res.status(404).json({ error: 'Grupo no encontrado' });
+        }
+        await pool.query('UPDATE Grupo SET Id_Materia = ?, Hora = ?, Aula = ?, RFCDocente = ?, NombreGrupo = ? WHERE idGrupo = ?', [Id_Materia, Hora, Aula, RFCDocente, NombreGrupo, idGrupo]);
+        res.status(200).json({ message: 'Grupo actualizado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar grupo' });
+    }
+});
+
+// Eliminar un grupo existente
+app.delete('/grupo/:idGrupo', async (req, res) => {
+    const idGrupo = req.params.idGrupo;
+    try {
+        const [existingGroup] = await pool.query('SELECT * FROM Grupo WHERE idGrupo = ?', [idGrupo]);
+        if (existingGroup.length === 0) {
+            return res.status(404).json({ error: 'Grupo no encontrado' });
+        }
+        await pool.query('DELETE FROM Grupo WHERE idGrupo = ?', [idGrupo]);
+        res.status(200).json({ message: 'Grupo eliminado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al eliminar grupo' });
+    }
+}); 
+
+//alumnos x grupos
+
+app.get('/alumnogrupo', async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT * FROM AlxGpo');
+        res.status(200).json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener grupos' });
+    }
+});
+
+app.post('/alumnogrupo', async (req, res) => {
+    const { idGrupo, numeroControl } = req.body;
+    if (!idGrupo || !numeroControl) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+    try {
+        const [existingGroup] = await pool.query('SELECT * FROM AlxGpo WHERE idGrupo = ? AND NumeroControl = ?', [idGrupo, numeroControl]);
+        if (existingGroup.length > 0) {
+            return res.status(400).json({ error: 'El grupo ya existe' });
+        }
+        await pool.query('INSERT INTO AlxGpo (idGrupo, NumeroControl) VALUES (?, ?)', [idGrupo, numeroControl]);
+        res.status(201).json({ message: 'Alumno creado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al crear grupo' });
+    }
+});
+
+app.get('/alumnogrupo/:idGrupo', async (req, res) => {
+    const idGrupo = req.params.idGrupo;
+    try {
+        const [results] = await pool.query('SELECT * FROM AlxGpo WHERE idGrupo = ?', [idGrupo]);
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Grupo no encontrado' });
+        }
+        res.status(200).json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener grupo' });
+    }
+});
+
+app.delete('/alumnogrupo/:idGrupo', async (req, res) => {
+    const idGrupo = req.params.idGrupo;
+    try {
+        const [existingGroup] = await pool.query('SELECT * FROM AlxGpo WHERE idGrupo = ?', [idGrupo]);
+        if (existingGroup.length === 0) {
+            return res.status(404).json({ error: 'Grupo no encontrado' });
+        }
+        await pool.query('DELETE FROM AlxGpo WHERE idGrupo = ?', [idGrupo]);
+        res.status(200).json({ message: 'Alumno eliminado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al eliminar grupo' });
+    }
+}); 
+
+
+app.get('/alumnogrupo', async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT * FROM AlxGpo');
+        res.status(200).json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener grupos' });
+    }
+});
+
+app.put('/alumnogrupo/:idGrupo', async (req, res) => {
+    const idGrupo = req.params.idGrupo;
+    const { numeroControl } = req.body;
+    try {
+        const [existingGroup] = await pool.query('SELECT * FROM AlxGpo WHERE idGrupo = ?', [idGrupo]);
+        if (existingGroup.length === 0) {
+            return res.status(404).json({ error: 'Grupo no encontrado' });
+        }
+        await pool.query('UPDATE AlxGpo SET numeroControl = ? WHERE idGrupo = ?', [numeroControl, idGrupo]);
+        res.status(200).json({ message: 'Alumno actualizado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar grupo' });
+    }
+});
+
+    
 }
 
 module.exports = router;
