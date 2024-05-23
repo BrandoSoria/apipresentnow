@@ -220,7 +220,7 @@ app.get('/aulas', async (req, res) => {
 
 app.post('/grupo', async (request, response) =>
 {
-    const {  Id_Materia, Hora, Aula, RFCDocente, NombreGrupo } = request.body;
+    const { idGrupo, Id_Materia, Hora, Aula, RFCDocente, NombreGrupo } = request.body;
     if (!Id_Materia || !Hora || !Aula || !RFCDocente || !NombreGrupo) {
         return response.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
@@ -229,7 +229,7 @@ app.post('/grupo', async (request, response) =>
         if (existingGroup.length > 0) {
             return res.status(400).json({ error: 'El grupo ya existe' });
         }
-        await pool.query('INSERT INTO Grupo ( Id_Materia, Hora, Aula, RFCDocente, NombreGrupo) VALUES (?, ?, ?, ?, ?)', [ Id_Materia, Hora, Aula, RFCDocente, NombreGrupo]);
+        await pool.query('INSERT INTO Grupo (IdGrupo, Id_Materia, Hora, Aula, RFCDocente, NombreGrupo) VALUES (?, ?, ?, ?, ?, ?)', [ idGrupo, Id_Materia, Hora, Aula, RFCDocente, NombreGrupo]);
         response.status(201).json({ message: 'Grupo creado correctamente' });
     } catch (error) {
         console.error(error);
