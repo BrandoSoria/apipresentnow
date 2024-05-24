@@ -1,8 +1,6 @@
 const pool = require('./conexion');
 const moment = require('moment-timezone');
 const express = require('express');
-const router = express.Router();
-
 const zonaHorariaLocal = 'America/Mexico_City';
 
 
