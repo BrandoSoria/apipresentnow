@@ -150,6 +150,17 @@ const router = (app) => {
         });
     });
 
+    app.get('/materias', (req, res) => {    
+        const query = 'SELECT * FROM Materias';
+        db.query(query, (err, results) => {
+            if (err) {
+                console.error('Error ejecutando la consulta:', err);
+                return res.status(500).json({ error: 'Error interno del servidor' });
+            }
+            res.json(results);
+        });
+    });
+
     // Eliminar una materia
     app.delete('/materias/:ClaveMateria', async (request, response) => {
         const ClaveMateria = request.params.ClaveMateria;
