@@ -121,31 +121,33 @@ const router = (app) => {
         }
     });
 
-    // Crear una nueva materia
-    app.post('/materias', async (request, response) => {
-        const { ClaveMateria, NombreMateria, Semestre } = request.body;
-        try {
-            await pool.query('INSERT INTO Materias (ClaveMateria, NombreMateria, Semestre) VALUES (?, ?, ?)', 
-                [ClaveMateria, NombreMateria, Semestre]);
-            response.status(201).json({ message: 'Materia creada correctamente' });
-        } catch (error) {
-            console.error(error);
-            response.status(500).json({ error: 'Error al crear materia' });
+    app.get('/materias', (req, res) => {
+        const numeroControl = req.query.numero_control;
+        if (!numeroControl) {
+            return res.status(400).json({ error: 'NumeroControl es requerido' });
         }
-    });
-
-    // Actualizar una materia existente
-    app.put('/materias/:ClaveMateria', async (request, response) => {
-        const ClaveMateria = request.params.ClaveMateria;
-        const { NombreMateria, Semestre } = request.body;
-        try {
-            await pool.query('UPDATE Materias SET NombreMateria = ?, Semestre = ?, PlanEstudioId = ?, HoraInicio = ?, ProfesorRFC = ?, NumeroControl = ? WHERE ClaveMateria = ?', 
-            [ClaveMateria, NombreMateria, Semestre]);
-            response.status(200).json({ message: 'Materia actualizada correctamente' });
-        } catch (error) {
-            console.error(error);
-            response.status(500).json({ error: 'Error al actualizar materia' });
-        }
+    
+        const query = `
+            SELECT Materias.ClaveMateria, Materias.NombreMateria
+            FROM AlxGpo
+            JOIN Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
+            JOIN Materias ON Grupo.Id_Materia = Materias.ClaveMateria
+            WHERE AlxGpo.NumeroControl = ?
+        `;
+    
+        db.query(query, [numeroControl], (err, results) => {
+            if (err) {
+                console.error('Error ejecutando la consulta:', err);
+                return res.status(500).json({ error: 'Error interno del servidor' });
+            }
+    
+            const materias = results.map(row => ({
+                ClaveMateria: row.ClaveMateria,
+                NombreMateria: row.NombreMateria
+            }));
+    
+            res.json(materias);
+        });
     });
 
     // Eliminar una materia
