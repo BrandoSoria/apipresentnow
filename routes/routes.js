@@ -71,8 +71,20 @@ router.post('/salida/profesores', (req, res) => {
 });
 
 
+    // // Crear un nuevo profesor
+    // app.post('/profesores', (request, response) => {
+    //     const { nombre, rfc, departamento } = request.body;
+    //     pool.query('INSERT INTO Profesores (Nombre, RFC, Departamento) VALUES (?, ?, ?)', [nombre, rfc, departamento], (error, result) => {
+    //         if (error) {
+    //             console.error(error);
+    //             return response.status(500).json({ error: 'Error al crear profesor' });
+    //         }
+    //         response.status(201).json({ message: 'Profesor creado correctamente' });
+    //     });
+    // });
+
     // Actualizar un profesor existente
-    router.put('/profesores/:rfc', (request, response) => {
+    app.put('/profesores/:rfc', (request, response) => {
         const rfc = request.params.rfc;
         const { nombre, departamento } = request.body;
         pool.query('UPDATE Profesores SET Nombre = ?, Departamento = ? WHERE RFC = ?', [nombre, departamento, rfc], (error, result) => {
@@ -85,7 +97,7 @@ router.post('/salida/profesores', (req, res) => {
     });
 
     // Eliminar un profesor
-    router.delete('/profesores/:rfc', (request, response) => {
+    app.delete('/profesores/:rfc', (request, response) => {
         const rfc = request.params.rfc;
         pool.query('DELETE FROM Profesores WHERE RFC = ?', [rfc], (error, result) => {
             if (error) {
@@ -96,26 +108,25 @@ router.post('/salida/profesores', (req, res) => {
         });
     });
 
-   
-   router.post('/departamentos', (request, response) => {
+   // Ruta para crear un nuevo departamento
+   const router = (app) => {
+   app.post('/departamentos', (request, response) => {
     const { nombre } = request.body;
     pool.query('INSERT INTO Departamento (Nombre) VALUES (?)', [nombre], (error, result) => {
         if (error) {
             console.error(error);
-            return response.status(500).json({ error: 'Error al crear departamento' });
+            response.status(500).json({ error: 'Error al crear departamento' });
         }
-        response.status(201).json({ message: 'Departamento creado correctamente' });
     });
-});
 
 
-// // Ruta para obtener un departamento por ID
-router.get('especifico/departamentos/:id', (request, response) => {
+// Ruta para obtener un departamento por ID
+app.get('/departamentos/:id', (request, response) => {
     const id = request.params.id;
     pool.query('SELECT * FROM Departamento WHERE id = ?', [id], (error, results) => {
         if (error) {
             console.error(error);
-            return response.status(500).json({ error: 'Error al obtener departamento' });
+            response.status(500).json({ error: 'Error al actualizar departamento' });
         }
         if (results.length === 0) {
             return response.status(404).json({ error: 'Departamento no encontrado' });
@@ -124,22 +135,22 @@ router.get('especifico/departamentos/:id', (request, response) => {
     });
 });
 
-// Define más rutas aquí usando `router`...
+// Define más rutas aquí usando `app`...
 
-// // Maneja los errores para los métodos PUT, DELETE, POST
-// router.put('/departamentos/:id', (request, response) => {
-//     const id = request.params.id;
-//     const { nombre } = request.body;
-//     pool.query('UPDATE Departamento SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
-//         if (error) {
-//             console.error(error);
-//             return response.status(500).json({ error: 'Error al actualizar departamento' });
-//         }
-//         response.status(200).json({ message: 'Departamento actualizado correctamente' });
-//     });
-// });
+// Maneja los errores para los métodos PUT, DELETE, POST
+app.put('/departamentos/:id', (request, response) => {
+    const id = request.params.id;
+    const { nombre } = request.body;
+    pool.query('UPDATE Departamento SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Error al actualizar departamento' });
+        }
+        response.status(200).json({ message: 'Departamento actualizado correctamente' });
+    });
+});
 
-router.delete('/departamentos/:id', (request, response) => {
+app.delete('/departamentos/:id', (request, response) => {
     const id = request.params.id;
     pool.query('DELETE FROM Departamento WHERE id = ?', [id], (error, result) => {
         if (error) {
@@ -149,47 +160,60 @@ router.delete('/departamentos/:id', (request, response) => {
         response.status(200).json({ message: 'Departamento eliminado correctamente' });
     });
 });
-   
+    
+    // Crear una nueva materia
+    app.post('/materias', (request, response) => {
+        const { claveMateria, nombre, creditos } = request.body;
+        pool.query('INSERT INTO Materia (ClaveMateria, Nombre, Creditos) VALUES (?, ?, ?)', [claveMateria, nombre, creditos], (error, result) => {
+            if (error) {
+                console.error(error);
+                return response.status(500).json({ error: 'Error al crear materia' });
+            }
+            response.status(201).json({ message: 'Materia creada correctamente' });
+            
+        });
+    });
+    
     // Actualizar una materia existente
-    router.put('/materias/:clave', (request, response) => {
+    app.put('/materias/:clave', (request, response) => {
         const clave = request.params.clave;
         const { nombre, creditos } = request.body;
-        pool.query('UPDATE Materia SET NombreMateria = ?, Semestre = ?, PlanEstudioId = ?, HoraInicio = ?, ProfesorRFC = ?, NumeroControl = ?  WHERE ClaveMateria = ?', [nombre, creditos, clave], (error, result) => {
+        pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, creditos, clave], (error, result) => {
             if (error) throw error;
             response.send('Materia actualizada correctamente');
         });
     });
     
     // Eliminar una materia
-    router.delete('/materias/:clave', (request, response) => {
+    app.delete('/materias/:clave', (request, response) => {
         const clave = request.params.clave;
         pool.query('DELETE FROM Materia WHERE ClaveMateria = ?', [clave], (error, result) => {
             if (error) throw error;
             response.send('Materia eliminada correctamente');
         });
     });
-    
+
     // Crear un nuevo plan de estudio
-    router.post('/planesestudio', (request, response) => {
-        const { nombrePlan, cicloEscolar } = request.body;
-        pool.query('INSERT INTO PlanEstudio (NombrePlan, CicloEscolar) VALUES (?, ?)', [ nombrePlan, cicloEscolar], (error, result) => {
+    app.post('/planesestudio', (request, response) => {
+        const { nombre } = request.body;
+        pool.query('INSERT INTO PlanEstudio (Nombre) VALUES (?)', [nombre], (error, result) => {
             if (error) throw error;
             response.send('Plan de estudio creado correctamente');
         });
     });
-    
+
     // Actualizar un plan de estudio existente
-    router.put('/planesestudio/:id', (request, response) => {
+    app.put('/planesestudio/:id', (request, response) => {
         const id = request.params.id;
         const { nombre } = request.body;
-        pool.query('UPDATE PlanEstudio SET NombrePlan = ?, CicloEscolar = ? WHERE id = ?', [nombre, id], (error, result) => {
+        pool.query('UPDATE PlanEstudio SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
             if (error) throw error;
             response.send('Plan de estudio actualizado correctamente');
         });
     });
-    
+
     // Eliminar un plan de estudio
-    router.delete('/planesestudio/:id', (request, response) => {
+    app.delete('/planesestudio/:id', (request, response) => {
         const id = request.params.id;
         pool.query('DELETE FROM PlanEstudio WHERE id = ?', id, (error, result) => {
             if (error) throw error;
@@ -198,7 +222,7 @@ router.delete('/departamentos/:id', (request, response) => {
     });
     
     // // Crear un nuevo alumno
-    // router.post('/alumnos', (request, response) => {
+    // app.post('/alumnos', (request, response) => {
     //     const { numeroControl, nombre, carrera } = request.body;
     //     pool.query('INSERT INTO Alumno (NumeroControl, Nombre, Carrera) VALUES (?, ?, ?)', [numeroControl, nombre, carrera], (error, result) => {
     //         if (error) throw error;
@@ -207,7 +231,7 @@ router.delete('/departamentos/:id', (request, response) => {
     // });
     
     // Actualizar un alumno existente
-    router.put('/alumnos/:numerocontrol', (request, response) => {
+    app.put('/alumnos/:numerocontrol', (request, response) => {
         const numerocontrol = request.params.numerocontrol;
         const { nombre, carrera } = request.body;
         pool.query('UPDATE Alumno SET Nombre = ?, Carrera = ? WHERE NumeroControl = ?', [nombre, carrera, numerocontrol], (error, result) => {
@@ -217,7 +241,7 @@ router.delete('/departamentos/:id', (request, response) => {
     });
     
     // Eliminar un alumno
-    router.delete('/alumnos/:numerocontrol', (request, response) => {
+    app.delete('/alumnos/:numerocontrol', (request, response) => {
         const numerocontrol = request.params.numerocontrol;
         pool.query('DELETE FROM Alumno WHERE NumeroControl = ?', numerocontrol, (error, result) => {
             if (error) throw error;
@@ -226,7 +250,7 @@ router.delete('/departamentos/:id', (request, response) => {
     });
     
     // Crear un nuevo grupo
-    router.post('/grupos', (request, response) => {
+    app.post('/grupos', (request, response) => {
         const { nombre, capacidad } = request.body;
         pool.query('INSERT INTO Grupo (Nombre, Capacidad) VALUES (?, ?)', [nombre, capacidad], (error, result) => {
             if (error) throw error;
@@ -235,7 +259,7 @@ router.delete('/departamentos/:id', (request, response) => {
     });
     
     // Actualizar un grupo existente
-    router.put('/grupos/:id', (request, response) => {
+    app.put('/grupos/:id', (request, response) => {
         const id = request.params.id;
         const { nombre, capacidad } = request.body;
         pool.query('UPDATE Grupo SET Nombre = ?, Capacidad = ? WHERE id = ?', [nombre, capacidad, id], (error, result) => {
@@ -245,16 +269,26 @@ router.delete('/departamentos/:id', (request, response) => {
     });
     
     // Eliminar un grupo
-    router.delete('/grupos/:id', (request, response) => {
+    app.delete('/grupos/:id', (request, response) => {
         const id = request.params.id;
         pool.query('DELETE FROM Grupo WHERE id = ?', id, (error, result) => {
             if (error) throw error;
             response.send('Grupo eliminado correctamente');
         });
     });
-
+    
+    // Obtener todas las asistencias
+    app.get('/asistencias', (req, res) => {
+        pool.query('SELECT * FROM Asistencia', (error, results) => {
+            if (error) {
+                throw error;
+            }
+            res.status(200).json(results);
+        });
+    });
+    
     // Obtener una asistencia por su ID
-    router.get('/asistencia/:id', (req, res) => {
+    app.get('/asistencias/:id', (req, res) => {
         const id = req.params.id;
         pool.query('SELECT * FROM Asistencia WHERE id = ?', id, (error, results) => {
             if (error) {
@@ -264,12 +298,46 @@ router.delete('/departamentos/:id', (request, response) => {
         });
     });
     
+    // Crear una nueva asistencia
+    app.post('/asistencias', (req, res) => {
+        const { AlumnoID, Fecha, Presente } = req.body;
+        pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente) VALUES (?, ?, ?)', [AlumnoID, Fecha, Presente], (error, results) => {
+            if (error) {
+                throw error;
+            }
+            res.status(201).send(`Asistencia añadida con ID: ${results.insertId}`);
+        });
+    });
     
-
+    // Actualizar una asistencia
+    app.put('/asistencias/:id', (req, res) => {
+        const id = req.params.id;
+        const { AlumnoID, Fecha, Presente } = req.body;
+        pool.query('UPDATE Asistencia SET AlumnoID = ?, Fecha = ?, Presente = ? WHERE id = ?', [AlumnoID, Fecha, Presente, id], (error, results) => {
+            if (error) {
+                throw error;
+            }
+            res.status(200).send(`Asistencia modificada con ID: ${id}`);
+        });
+    });
+    
+    // Eliminar una asistencia
+    app.delete('/asistencias/:id', (req, res) => {
+        const id = req.params.id;
+        pool.query('DELETE FROM Asistencia WHERE id = ?', id, (error, results) => {
+            if (error) {
+                throw error;
+            }
+            res.status(200).send(`Asistencia eliminada con ID: ${id}`);
+        });
+    });
+    
+    
+    }
         
 
 // Crear un nuevo departamento
-router.post('/departamentos', (request, response) => {
+app.post('/departamentos', (request, response) => {
     const { nombre } = request.body;
     pool.query('INSERT INTO Departamento (Nombre) VALUES (?)', [nombre], (error, result) => {
         if (error) throw error;
@@ -278,7 +346,7 @@ router.post('/departamentos', (request, response) => {
 });
 
 // Actualizar un departamento existente
-router.put('/departamentos/:id', (request, response) => {
+app.put('/departamentos/:id', (request, response) => {
     const id = request.params.id;
     const { nombre } = request.body;
     pool.query('UPDATE Departamento SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
@@ -288,7 +356,7 @@ router.put('/departamentos/:id', (request, response) => {
 });
 
 // Eliminar un departamento
-router.delete('/departamentos/:id', (request, response) => {
+app.delete('/departamentos/:id', (request, response) => {
     const id = request.params.id;
     pool.query('DELETE FROM Departamento WHERE id = ?', id, (error, result) => {
         if (error) throw error;
@@ -297,27 +365,26 @@ router.delete('/departamentos/:id', (request, response) => {
 });
 
 // Crear una nueva materia
-//tabla nueva definitiva
-router.post('/materias', (request, response) => {
-    const { claveMateria, nombre, semestre, planEstudioId, horaInicio, profesorRfc, numeroControl } = request.body;
-    pool.query('INSERT INTO Materia (ClaveMateria, NombreMateria, Semestre, PlanEstudioId, HoraInicio, ProfesorRFC, NumeroControl) VALUES (?, ?, ?, ?, ?, ?, ?)', [claveMateria, nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl], (error, result) => {
+app.post('/materias', (request, response) => {
+    const { claveMateria, nombre, creditos } = request.body;
+    pool.query('INSERT INTO Materia (ClaveMateria, Nombre, Creditos) VALUES (?, ?, ?)', [claveMateria, nombre, creditos], (error, result) => {
         if (error) throw error;
         response.send('Materia creada correctamente');
     });
 });
 
 // Actualizar una materia existente
-router.put('/materias/:clave', (request, response) => {
+app.put('/materias/:clave', (request, response) => {
     const clave = request.params.clave;
-    const { nombre, semestre, planEstudioId, fechaHora, profesorRfc, numeroControl } = request.body;
-    pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, semestre, planEstudioId, horaInicio, profesorRfc, numeroControl], (error, result) => {
+    const { nombre, creditos } = request.body;
+    pool.query('UPDATE Materia SET Nombre = ?, Creditos = ? WHERE ClaveMateria = ?', [nombre, creditos, clave], (error, result) => {
         if (error) throw error;
         response.send('Materia actualizada correctamente');
     });
 });
 
 // Eliminar una materia
-router.delete('/materias/:clave', (request, response) => {
+app.delete('/materias/:clave', (request, response) => {
     const clave = request.params.clave;
     pool.query('DELETE FROM Materia WHERE ClaveMateria = ?', clave, (error, result) => {
         if (error) throw error;
@@ -326,16 +393,16 @@ router.delete('/materias/:clave', (request, response) => {
 });
 
 // Crear un nuevo plan de estudio
-router.post('/planesestudio', (request, response) => {
-    const { nombre, cicloEscolar } = request.body;
-    pool.query('INSERT INTO PlanEstudio (Nombre, CicloEscolar) VALUES (?)', [nombre,cicloEscolar], (error, result) => {
+app.post('/planesestudio', (request, response) => {
+    const { nombre } = request.body;
+    pool.query('INSERT INTO PlanEstudio (Nombre) VALUES (?)', [nombre], (error, result) => {
         if (error) throw error;
         response.send('Plan de estudio creado correctamente');
     });
 });
 
 // Actualizar un plan de estudio existente
-router.put('/planesestudio/:id', (request, response) => {
+app.put('/planesestudio/:id', (request, response) => {
     const id = request.params.id;
     const { nombre } = request.body;
     pool.query('UPDATE PlanEstudio SET Nombre = ? WHERE id = ?', [nombre, id], (error, result) => {
@@ -345,7 +412,7 @@ router.put('/planesestudio/:id', (request, response) => {
 });
 
 // Eliminar un plan de estudio
-router.delete('/planesestudio/:id', (request, response) => {
+app.delete('/planesestudio/:id', (request, response) => {
     const id = request.params.id;
     pool.query('DELETE FROM PlanEstudio WHERE id = ?', id, (error, result) => {
         if (error) throw error;
@@ -353,8 +420,9 @@ router.delete('/planesestudio/:id', (request, response) => {
     });
 });
 
+
 // Crear un nuevo alumno
-router.post('/alumnos', (request, response) => {
+app.post('/alumnos', (request, response) => {
     const { numeroControl, nombre, carrera } = request.body;
     pool.query('INSERT INTO Alumno (NumeroControl, Nombre, Carrera) VALUES (?, ?, ?)', [numeroControl, nombre, carrera], (error, result) => {
         if (error) throw error;
@@ -363,7 +431,7 @@ router.post('/alumnos', (request, response) => {
 });
 
 // Actualizar un alumno existente
-router.put('/alumnos/:numerocontrol', (request, response) => {
+app.put('/alumnos/:numerocontrol', (request, response) => {
     const numerocontrol = request.params.numerocontrol;
     const { nombre, carrera } = request.body;
     pool.query('UPDATE Alumno SET Nombre = ?, Carrera = ? WHERE NumeroControl = ?', [nombre, carrera, numerocontrol], (error, result) => {
@@ -373,7 +441,7 @@ router.put('/alumnos/:numerocontrol', (request, response) => {
 });
 
 // Eliminar un alumno
-router.delete('/alumnos/:numerocontrol', (request, response) => {
+app.delete('/alumnos/:numerocontrol', (request, response) => {
     const numerocontrol = request.params.numerocontrol;
     pool.query('DELETE FROM Alumno WHERE NumeroControl = ?', numerocontrol, (error, result) => {
         if (error) throw error;
@@ -382,7 +450,7 @@ router.delete('/alumnos/:numerocontrol', (request, response) => {
 });
 
 // Crear un nuevo grupo
-router.post('/grupos', (request, response) => {
+app.post('/grupos', (request, response) => {
     const { nombre, capacidad } = request.body;
     pool.query('INSERT INTO Grupo (Nombre, Capacidad) VALUES (?, ?)', [nombre, capacidad], (error, result) => {
         if (error) throw error;
@@ -391,7 +459,7 @@ router.post('/grupos', (request, response) => {
 });
 
 // Actualizar un grupo existente
-router.put('/grupos/:id', (request, response) => {
+app.put('/grupos/:id', (request, response) => {
     const id = request.params.id;
     const { nombre, capacidad } = request.body;
     pool.query('UPDATE Grupo SET Nombre = ?, Capacidad = ? WHERE id = ?', [nombre, capacidad, id], (error, result) => {
@@ -401,7 +469,7 @@ router.put('/grupos/:id', (request, response) => {
 });
 
 // Eliminar un grupo
-router.delete('/grupos/:id', (request, response) => {
+app.delete('/grupos/:id', (request, response) => {
     const id = request.params.id;
     pool.query('DELETE FROM Grupo WHERE id = ?', id, (error, result) => {
         if (error) throw error;
@@ -409,12 +477,65 @@ router.delete('/grupos/:id', (request, response) => {
     });
 });
 
+// Obtener todas las asistencias
+app.get('/asistencias', (req, res) => {
+    pool.query('SELECT * FROM Asistencia', (error, results) => {
+        if (error) {
+            throw error;
+        }
+        res.status(200).json(results);
+    });
+});
 
+// Obtener una asistencia por su ID
+app.get('/asistencias/:id', (req, res) => {
+    const id = req.params.id;
+    pool.query('SELECT * FROM Asistencia WHERE id = ?', id, (error, results) => {
+        if (error) {
+            throw error;
+        }
+        res.status(200).json(results);
+    });
+});
+
+// Crear una nueva asistencia
+app.post('/asistencias', (req, res) => {
+    const { AlumnoID, Fecha, Presente } = req.body;
+    pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente) VALUES (?, ?, ?)', [AlumnoID, Fecha, Presente], (error, results) => {
+        if (error) {
+            throw error;
+        }
+        res.status(201).send(`Asistencia añadida con ID: ${results.insertId}`);
+    });
+});
+
+// Actualizar una asistencia
+app.put('/asistencias/:id', (req, res) => {
+    const id = req.params.id;
+    const { AlumnoID, Fecha, Presente } = req.body;
+    pool.query('UPDATE Asistencia SET AlumnoID = ?, Fecha = ?, Presente = ? WHERE id = ?', [AlumnoID, Fecha, Presente, id], (error, results) => {
+        if (error) {
+            throw error;
+        }
+        res.status(200).send(`Asistencia modificada con ID: ${id}`);
+    });
+});
+
+// Eliminar una asistencia
+app.delete('/asistencias/:id', (req, res) => {
+    const id = req.params.id;
+    pool.query('DELETE FROM Asistencia WHERE id = ?', id, (error, results) => {
+        if (error) {
+            throw error;
+        }
+        res.status(200).send(`Asistencia eliminada con ID: ${id}`);
+    });
+});
 
 // los get
 
     // Ruta para obtener todos los profesores
-    router.get('/profesores', (req, res) => {
+    app.get('/profesores', (req, res) => {
         pool.query('SELECT * FROM Profesores', (error, results) => {
             if (error) {
                 console.error(error);
@@ -425,7 +546,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Ruta para obtener todos los departamentos
-    router.get('/departamentos', (req, res) => {
+    app.get('/departamentos', (req, res) => {
         pool.query('SELECT * FROM Departamento', (error, results) => {
             if (error) {
                 console.error(error);
@@ -436,7 +557,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Ruta para obtener todas las materias
-    router.get('/materias', (req, res) => {
+    app.get('/materias', (req, res) => {
         pool.query('SELECT * FROM Materia', (error, results) => {
             if (error) {
                 console.error(error);
@@ -447,7 +568,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Ruta para obtener todos los planes de estudio
-    router.get('/planesestudio', (req, res) => {
+    app.get('/planesestudio', (req, res) => {
         pool.query('SELECT * FROM PlanEstudio', (error, results) => {
             if (error) {
                 console.error(error);
@@ -458,7 +579,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Ruta para obtener todos los alumnos
-    router.get('/alumnos', (req, res) => {
+    app.get('/alumnos', (req, res) => {
         pool.query('SELECT * FROM Alumno', (error, results) => {
             if (error) {
                 console.error(error);
@@ -469,7 +590,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Ruta para obtener todos los grupos
-    router.get('/grupos', (req, res) => {
+    app.get('/grupos', (req, res) => {
         pool.query('SELECT * FROM Grupo', (error, results) => {
             if (error) {
                 console.error(error);
@@ -479,9 +600,18 @@ router.delete('/grupos/:id', (request, response) => {
         });
     });
 
-   
+    // Ruta para obtener todas las asistencias
+    app.get('/asistencias', (req, res) => {
+        pool.query('SELECT * FROM Asistencia', (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener asistencias' });
+            }
+            res.status(200).json(results);
+        });
+    });
     // Obtener un profesor por su RFC
-    router.get('/profesores/:rfc', (req, res) => {
+    app.get('/profesores/:rfc', (req, res) => {
         const rfc = req.params.rfc;
         pool.query('SELECT * FROM Profesores WHERE RFC = ?', [rfc], (error, results) => {
             if (error) {
@@ -496,7 +626,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Obtener un departamento por su ID
-    router.get('quitar/departamentos/:id', (req, res) => {
+    app.get('/departamentos/:id', (req, res) => {
         const id = req.params.id;
         pool.query('SELECT * FROM Departamento WHERE id = ?', [id], (error, results) => {
             if (error) {
@@ -511,7 +641,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Obtener una materia por su clave
-    router.get('/materias/:clave', (req, res) => {
+    app.get('/materias/:clave', (req, res) => {
         const clave = req.params.clave;
         pool.query('SELECT * FROM Materia WHERE ClaveMateria = ?', [clave], (error, results) => {
             if (error) {
@@ -526,7 +656,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Obtener un plan de estudio por su ID
-    router.get('/planesestudio/:id', (req, res) => {
+    app.get('/planesestudio/:id', (req, res) => {
         const id = req.params.id;
         pool.query('SELECT * FROM PlanEstudio WHERE id = ?', [id], (error, results) => {
             if (error) {
@@ -541,7 +671,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Obtener un alumno por su número de control
-    router.get('/alumnos/:numerocontrol', (req, res) => {
+    app.get('/alumnos/:numerocontrol', (req, res) => {
         const numerocontrol = req.params.numerocontrol;
         pool.query('SELECT * FROM Alumno WHERE NumeroControl = ?', [numerocontrol], (error, results) => {
             if (error) {
@@ -556,7 +686,7 @@ router.delete('/grupos/:id', (request, response) => {
     });
 
     // Obtener un grupo por su ID
-    router.get('/grupos/:id', (req, res) => {
+    app.get('/grupos/:id', (req, res) => {
         const id = req.params.id;
         pool.query('SELECT * FROM Grupo WHERE id = ?', [id], (error, results) => {
             if (error) {
@@ -570,17 +700,20 @@ router.delete('/grupos/:id', (request, response) => {
         });
     });
 
-
-// Manejo de errores para métodos no definidos
-router.use((req, res, next) => {
-    res.status(404).json({ error: 'Ruta no encontrada' });
-});
-
-// Middleware de manejo de errores
-router.use((error, req, res, next) => {
-    console.error(error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-});
-
+    // Obtener una asistencia por su ID
+    app.get('/asistencias/:id', (req, res) => {
+        const id = req.params.id;
+        pool.query('SELECT * FROM Asistencia WHERE id = ?', [id], (error, results) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ error: 'Error al obtener asistencia' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Asistencia no encontrada' });
+            }
+            res.status(200).json(results[0]);
+        });
+    });
+};
 
 module.exports = router;
