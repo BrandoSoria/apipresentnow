@@ -29,6 +29,78 @@ const router = (app) => {
         }
     });
 
+
+    app.get('/profesor/:rfc', async (req, res) => {
+  try {
+    const profesorRFC = req.params.rfc;
+    const query = `
+      SELECT 
+        p.RFC, 
+        p.Nombre AS ProfesorNombre, 
+        g.NombreGrupo, 
+        m.NombreMateria, 
+        a.Nombre AS AulaNombre
+      FROM 
+        Profesores p
+      JOIN 
+        Grupo g ON p.RFC = g.RfcDocente
+      JOIN 
+        Materias m ON g.Id_Materia = m.ClaveMateria
+      JOIN 
+        Aulas a ON g.Aula = a.ClaveAula
+      WHERE 
+        p.RFC = ?
+    `;
+    const [results] = await pool.query(query, [profesorRFC]);
+    res.json(results);
+  } catch (error) {
+    console.error('Error al realizar la consulta:', error);
+    res.status(500).send('Error al realizar la consulta');
+  }
+});
+//obtener en que materias y aulas esta cada profesor
+app.get('/profesor/materias/aulas', async (req, res) => {
+    try {
+      const { rfc } = req.query;
+  
+      // Verificar si el RFC está presente en la consulta
+      if (!rfc) {
+        return res.status(400).json({ error: 'El RFC es requerido como parámetro de consulta (rfc=)' });
+      }
+  
+      const query = `
+        SELECT 
+          p.RFC, 
+          p.Nombre AS ProfesorNombre, 
+          g.NombreGrupo, 
+          m.NombreMateria, 
+          a.Nombre AS AulaNombre
+        FROM 
+          Profesores p
+        JOIN 
+          Grupo g ON p.RFC = g.RfcDocente
+        JOIN 
+          Materias m ON g.Id_Materia = m.ClaveMateria
+        JOIN 
+          Aulas a ON g.Aula = a.ClaveAula
+        WHERE 
+          p.RFC = ?
+      `;
+      const [results] = await pool.query(query, [rfc]);
+      
+      // Verificar si se encontraron resultados
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'Profesor no encontrado' });
+      }
+  
+      res.json(results);
+    } catch (error) {
+      console.error('Error al realizar la consulta:', error);
+      res.status(500).send('Error al realizar la consulta');
+    }
+  });
+  
+
     // Actualizar un profesor existente
     app.put('/profesores/:rfc', async (req, res) => {
         const rfc = req.params.rfc;
