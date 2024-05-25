@@ -125,28 +125,34 @@ app.get('/profesor/materias/aulas', async (req, res) => {
             res.status(500).json({ error: 'Error al eliminar profesor' });
         }
     });
+// Registrar entrada de profesor
+app.post('/entrada/profesor', [
+    body('profesorRfc').notEmpty().withMessage('El RFC del profesor es obligatorio'),
+    body('entro').notEmpty().withMessage('El campo "entro" es obligatorio'),
+    body('aula').notEmpty().withMessage('El aula es obligatoria')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
 
-    // Registrar entrada de profesor
-    app.post('/entrada/profesor', [
-        body('profesorRfc').notEmpty().withMessage('El RFC del profesor es obligatorio'),
-        body('entro').notEmpty().withMessage('El campo "entro" es obligatorio'),
-        body('aula').notEmpty().withMessage('El aula es obligatoria')
-    ], async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+    const { profesorRfc, entro, aula } = req.body;
+    const FechaHora = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+    try {
+        // Verificar si el profesor existe
+        const [profesor] = await pool.query('SELECT * FROM Profesores WHERE RFC = ?', [profesorRfc]);
+        if (profesor.length === 0) {
+            return res.status(404).json({ error: 'El profesor no está registrado' });
         }
 
-        const { profesorRfc, entro, aula } = req.body;
-        const FechaHora = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
-        try {
-            await pool.query('INSERT INTO EntradaMaestro (ProfesorRFC, FechaHora, Entro, aula) VALUES (?, ?, ?, ?)', [profesorRfc, FechaHora, entro, aula]);
-            res.status(201).json({ message: 'Asistencia registrada correctamente' });
-        } catch (error) {
-            console.error('Error al registrar la asistencia:', error);
-            res.status(500).json({ error: 'Error interno del servidor' });
-        }
-    });
+        // Registrar la entrada del profesor
+        await pool.query('INSERT INTO EntradaMaestro (ProfesorRFC, FechaHora, Entro, aula) VALUES (?, ?, ?, ?)', [profesorRfc, FechaHora, entro, aula]);
+        res.status(201).json({ message: 'Asistencia registrada correctamente' });
+    } catch (error) {
+        console.error('Error al registrar la asistencia:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
     // Obtener todas las asistencias
     app.get('/entrada/profesor', async (req, res) => {

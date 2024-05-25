@@ -53,18 +53,35 @@ const router = (app) => {
         }
     });
 
-    // Registrar asistencia de alumno
-    app.post('/asistencias', async (req, res) => {
-        const { numeroControl, presente, materiaId } = req.body;
-        const Fecha = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
-        try {
+// Registrar asistencia de alumno a cada maateria
+app.post('/asistencias', async (req, res) => {
+    const { numeroControl, presente } = req.body;
+    const Fecha = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+    
+    try {
+        // Consultar las materias del alumno
+        const query = `
+            SELECT Materias.ClaveMateria, Materias.NombreMateria
+            FROM AlxGpo
+            JOIN Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
+            JOIN Materias ON Grupo.Id_Materia = Materias.ClaveMateria
+            WHERE AlxGpo.NumeroControl = ?
+        `;
+        const [results] = await pool.query(query, [numeroControl]);
+
+        // Registrar la asistencia para cada materia del alumno
+        await Promise.all(results.map(async (row) => {
+            const { ClaveMateria, NombreMateria } = row;
+            const materiaId = ClaveMateria; // Usar la ClaveMateria como ID de materia
             await pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, materiaId]);
-            res.status(201).json({ message: 'Asistencia registrada correctamente' });
-        } catch (error) {
-            console.error('Error al registrar la asistencia:', error);
-            res.status(500).json({ error: 'Error interno del servidor' });
-        }
-    });
+        }));
+
+        res.status(201).json({ message: 'Asistencia registrada correctamente' });
+    } catch (error) {
+        console.error('Error al registrar la asistencia:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
     // Obtener todas las asistencias
     app.get('/asistencias', async (req, res) => {
