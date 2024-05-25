@@ -147,12 +147,36 @@ app.post('/entrada/profesor', [
 
         // Registrar la entrada del profesor
         await pool.query('INSERT INTO EntradaMaestro (ProfesorRFC, FechaHora, Entro, aula) VALUES (?, ?, ?, ?)', [profesorRfc, FechaHora, entro, aula]);
-        res.status(201).json({ message: 'Asistencia registrada correctamente' });
+        
+        // Obtener las materias y aulas asociadas al profesor
+        const query = `
+            SELECT 
+                p.RFC, 
+                p.Nombre AS ProfesorNombre, 
+                g.NombreGrupo, 
+                m.NombreMateria, 
+                a.Nombre AS AulaNombre
+            FROM 
+                Profesores p
+            JOIN 
+                Grupo g ON p.RFC = g.RfcDocente
+            JOIN 
+                Materias m ON g.Id_Materia = m.ClaveMateria
+            JOIN 
+                Aulas a ON g.Aula = a.ClaveAula
+            WHERE 
+                p.RFC = ?
+        `;
+        const [results] = await pool.query(query, [profesorRfc]);
+        
+        // Devolver las materias y aulas asociadas al profesor
+        res.status(201).json({ message: 'Asistencia registrada correctamente', materiasYaulas: results });
     } catch (error) {
         console.error('Error al registrar la asistencia:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
 
     // Obtener todas las asistencias
     app.get('/entrada/profesor', async (req, res) => {
