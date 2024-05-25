@@ -13,7 +13,7 @@ dotenv.config();
 const routes = require('./routes/routes');
 const alumnos = require('./routes/models/alumno');
 const maestros = require('./routes/models/maestros');
-const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro } = require('./routes/auth');
+const { autenticarAlumno, autenticarMaestro, crearAlumno, crearMaestro, crearAdministrador, autenticarAdministrador } = require('./routes/auth');
 
 // Crear instancia de la aplicación Express
 const app = express();
@@ -39,6 +39,8 @@ app.post('/login/alumno', autenticarAlumno);
 app.post('/login/maestro', autenticarMaestro);
 app.post('/login/crear/maestro', crearMaestro);
 app.post('/login/crear/alumno', crearAlumno);
+app.post('/login/crear/admin', crearAdministrador);
+app.post('/login/admin', autenticarAdministrador);
 
 // Maneja rutas no definidas (404)
 app.use((req, res, next) => {

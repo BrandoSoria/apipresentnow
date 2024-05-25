@@ -83,7 +83,7 @@ async function crearAdministrador(req, res) {
 
 
 // Función para autenticar administrador
-async function autenticarMaestro(req, res) {
+async function autenticarAdministrador(req, res) {
     const { Credencial, password } = req.body;
 
     try {
@@ -259,4 +259,6 @@ module.exports = {
     autenticarMaestro,
     crearAlumno,
     crearMaestro,
+    crearAdministrador,
+    autenticarAdministrador
 };
