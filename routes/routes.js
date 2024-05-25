@@ -121,7 +121,7 @@ const router = (app) => {
         }
     });
 
-    app.get('/materias', (req, res) => {
+    app.get('/materias/alumno', (req, res) => {
         const numeroControl = req.query.numero_control;
         if (!numeroControl) {
             return res.status(400).json({ error: 'NumeroControl es requerido' });
