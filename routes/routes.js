@@ -120,46 +120,44 @@ const router = (app) => {
             res.status(500).json({ error: 'Error al obtener plan de estudio' });
         }
     });
+ // Corregir aquí el uso de db.query a pool.query
+ app.get('/materias/alumno', async (req, res) => {
+    const numeroControl = req.query.numero_control;
+    if (!numeroControl) {
+        return res.status(400).json({ error: 'NumeroControl es requerido' });
+    }
 
-    app.get('/materias/alumno', (req, res) => {
-        const numeroControl = req.query.numero_control;
-        if (!numeroControl) {
-            return res.status(400).json({ error: 'NumeroControl es requerido' });
-        }
-    
-        const query = `
-            SELECT Materias.ClaveMateria, Materias.NombreMateria
-            FROM AlxGpo
-            JOIN Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
-            JOIN Materias ON Grupo.Id_Materia = Materias.ClaveMateria
-            WHERE AlxGpo.NumeroControl = ?
-        `;
-    
-        pool.query(query, [numeroControl], (err, results) => {
-            if (err) {
-                console.error('Error ejecutando la consulta:', err);
-                return res.status(500).json({ error: 'Error interno del servidor' });
-            }
-    
-            const materias = results.map(row => ({
-                ClaveMateria: row.ClaveMateria,
-                NombreMateria: row.NombreMateria
-            }));
-    
-            res.json(materias);
-        });
-    });
+    const query = `
+        SELECT Materias.ClaveMateria, Materias.NombreMateria
+        FROM AlxGpo
+        JOIN Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
+        JOIN Materias ON Grupo.Id_Materia = Materias.ClaveMateria
+        WHERE AlxGpo.NumeroControl = ?
+    `;
 
-    app.get('/materias', (req, res) => {    
-        const query = 'SELECT * FROM Materias';
-        pool.query(query, (err, results) => {
-            if (err) {
-                console.error('Error ejecutando la consulta:', err);
-                return res.status(500).json({ error: 'Error interno del servidor' });
-            }
-            res.json(results);
-        });
-    });
+    try {
+        const [results] = await pool.query(query, [numeroControl]);
+        const materias = results.map(row => ({
+            ClaveMateria: row.ClaveMateria,
+            NombreMateria: row.NombreMateria
+        }));
+        res.json(materias);
+    } catch (err) {
+        console.error('Error ejecutando la consulta:', err);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+app.get('/materias', async (req, res) => {
+    const query = 'SELECT * FROM Materias';
+    try {
+        const [results] = await pool.query(query);
+        res.json(results);
+    } catch (err) {
+        console.error('Error ejecutando la consulta:', err);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
     // Eliminar una materia
     app.delete('/materias/:ClaveMateria', async (request, response) => {
@@ -173,16 +171,6 @@ const router = (app) => {
         }
     });
 
-    // Obtener todas las materias
-    app.get('/materias', async (req, res) => {
-        try {
-            const [results] = await pool.query('SELECT * FROM Materias');
-            res.status(200).json(results);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Error al obtener materias' });
-        }
-    });
 
     // Obtener una materia por su clave
     app.get('/materias/:ClaveMateria', async (req, res) => {

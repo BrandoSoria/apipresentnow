@@ -47,6 +47,87 @@ async function crearAlumno(req, res) {
     }
 }
 
+//crear administrador
+async function crearAdministrador(req, res) {
+    const { Credencial, Nombre, contraseña, roleId } = req.body;
+
+    try {
+        const [existingAdmon] = await pool.query('SELECT * FROM admon WHERE Credencial = ?', [Credencial]);
+        if (existingAdmon.length > 0) {
+            return res.status(400).json({ error: 'El administrador con es acredencial ya está en uso' });
+        }
+
+        const hashedPassword = await bcryptjs.hash(contraseña, 10);
+
+        await pool.query(
+            'INSERT INTO admon (Credencial, Nombre, Contraseña, RoleID) VALUES (?, ?, ?, ?)',
+            [Credencial, Nombre, hashedPassword, roleId]
+        );
+
+        const token = jwt.sign(
+            {
+                id: Credencial,
+                roleId: roleId
+            },
+            secretKey,
+            { expiresIn: '1h' }
+        );
+
+        res.json({ token });
+    } catch (error) {
+        console.error('Error al crear un nuevo administrador:', error);
+        res.status(500).json({ error: 'Error al crear un nuevo administrador' });
+    }
+}
+
+
+
+// Función para autenticar administrador
+async function autenticarMaestro(req, res) {
+    const { Credencial, password } = req.body;
+
+    try {
+        const [results] = await pool.query('SELECT * FROM admin WHERE Credencial = ?', [Credencial]);
+        const admin = results[0];
+        if (!admin) {
+            return res.status(401).json({ error: 'admin no encontrado' });
+        }
+
+        const match = await bcryptjs.compare(password, admin.Contraseña);
+        if (!match) {
+            return res.status(401).json({ error: 'Contraseña incorrecta' });
+        }
+
+        const [roleResults] = await pool.query(
+            `SELECT Roles.Nombre AS rol, GROUP_CONCAT(Permisos.Nombre) AS permisos
+             FROM Roles
+             JOIN RolPermiso ON Roles.RoleID = RolPermiso.RoleID
+             JOIN Permisos ON RolPermiso.PermisoID = Permisos.PermisoID
+             WHERE Roles.RoleID = ?`,
+            [admin.RoleID]
+        );
+
+        const rol = roleResults[0]?.rol;
+        const permisos = roleResults[0]?.permisos;
+
+        const token = jwt.sign(
+            {
+                id: admin.Credencial,
+                role: rol,
+                permisos: permisos
+            },
+            secretKey,
+            { expiresIn: '1h' }
+        );
+
+        res.json({ token });
+    } catch (error) {
+        console.error('Error al autenticar administrador:', error);
+        res.status(500).json({ error: 'Error al autenticar administrador' });
+    }
+}
+
+
 // Función para autenticar alumnos
 async function autenticarAlumno(req, res) {
     const { numeroControl, password } = req.body;
@@ -91,6 +172,8 @@ async function autenticarAlumno(req, res) {
         res.status(500).json({ error: 'Error al autenticar alumno' });
     }
 }
+
+
 
 // Función para autenticar maestros
 async function autenticarMaestro(req, res) {
