@@ -120,6 +120,19 @@ const router = (app) => {
             res.status(500).json({ error: 'Error al obtener plan de estudio' });
         }
     });
+//registrar materias
+  app.post('/materias', async (req, res) => { 
+    const { claveMateria, nombreMateria, semestre } = req.body;
+    try {
+        await pool.query('INSERT INTO Materias (ClaveMateria, NombreMateria, Semestre) VALUES (?, ?, ?)', [claveMateria, nombreMateria, semestre]);
+        res.status(201).json({ message: 'Materia registrada correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al registrar materia' });
+    }
+});
+   
+
  // Corregir aquí el uso de db.query a pool.query
  app.get('/materias/alumno', async (req, res) => {
     const numeroControl = req.query.numero_control;
