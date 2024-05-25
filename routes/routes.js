@@ -135,7 +135,7 @@ const router = (app) => {
             WHERE AlxGpo.NumeroControl = ?
         `;
     
-        db.query(query, [numeroControl], (err, results) => {
+        pool.query(query, [numeroControl], (err, results) => {
             if (err) {
                 console.error('Error ejecutando la consulta:', err);
                 return res.status(500).json({ error: 'Error interno del servidor' });
@@ -152,7 +152,7 @@ const router = (app) => {
 
     app.get('/materias', (req, res) => {    
         const query = 'SELECT * FROM Materias';
-        db.query(query, (err, results) => {
+        pool.query(query, (err, results) => {
             if (err) {
                 console.error('Error ejecutando la consulta:', err);
                 return res.status(500).json({ error: 'Error interno del servidor' });
