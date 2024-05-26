@@ -141,18 +141,27 @@ const router = (app) => {
     }
 
     const query = `
-        SELECT Materias.ClaveMateria, Materias.NombreMateria
-        FROM AlxGpo
-        JOIN Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
-        JOIN Materias ON Grupo.Id_Materia = Materias.ClaveMateria
-        WHERE AlxGpo.NumeroControl = ?
+    SELECT 
+    Materias.ClaveMateria, 
+    Materias.NombreMateria,
+    Grupo.Hora
+FROM 
+    AlxGpo
+JOIN 
+    Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
+JOIN 
+    Materias ON Grupo.Id_Materia = Materias.ClaveMateria
+WHERE 
+    AlxGpo.NumeroControl = ?
+
     `;
 
     try {
         const [results] = await pool.query(query, [numeroControl]);
         const materias = results.map(row => ({
             ClaveMateria: row.ClaveMateria,
-            NombreMateria: row.NombreMateria
+            NombreMateria: row.NombreMateria,
+            Hora: row.Hora
         }));
         res.json(materias);
     } catch (err) {

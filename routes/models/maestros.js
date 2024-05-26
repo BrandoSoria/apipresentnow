@@ -58,7 +58,7 @@ const router = (app) => {
     res.status(500).send('Error al realizar la consulta');
   }
 });
-//obtener en que materias y aulas esta cada profesor
+//obtener en que materias y aulas esta cada profesor Y LA HORA
 app.get('/profesor/materias/aulas', async (req, res) => {
     try {
       const { rfc } = req.query;
@@ -69,22 +69,23 @@ app.get('/profesor/materias/aulas', async (req, res) => {
       }
   
       const query = `
-        SELECT 
-          p.RFC, 
-          p.Nombre AS ProfesorNombre, 
-          g.NombreGrupo, 
-          m.NombreMateria, 
-          a.Nombre AS AulaNombre
-        FROM 
-          Profesores p
-        JOIN 
-          Grupo g ON p.RFC = g.RfcDocente
-        JOIN 
-          Materias m ON g.Id_Materia = m.ClaveMateria
-        JOIN 
-          Aulas a ON g.Aula = a.ClaveAula
-        WHERE 
-          p.RFC = ?
+      SELECT 
+      p.RFC, 
+      p.Nombre AS ProfesorNombre, 
+      g.NombreGrupo, 
+      m.NombreMateria, 
+      a.Nombre AS AulaNombre,
+      g.Hora
+  FROM 
+      Profesores p
+  JOIN 
+      Grupo g ON p.RFC = g.RfcDocente
+  JOIN 
+      Materias m ON g.Id_Materia = m.ClaveMateria
+  JOIN 
+      Aulas a ON g.Aula = a.ClaveAula
+  WHERE 
+      p.RFC = ?
       `;
       const [results] = await pool.query(query, [rfc]);
       
