@@ -97,6 +97,29 @@ app.post('/asistencias', async (req, res) => {
             res.status(500).json({ error: 'Error interno del servidor' });
         }
     });
+
+    // Obtener asistencias por materiaID (como parámetro de consulta)
+app.get('/asistencias', async (req, res) => {
+    const materiaID = req.query.materiaID;
+    if (!materiaID) {
+        return res.status(400).json({ error: 'El parámetro materiaID es obligatorio' });
+    }
+
+    try {
+        const [results] = await pool.query('SELECT *, DATE_FORMAT(Fecha, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM Asistencia WHERE materiaId = ?', [materiaID]);
+        const formattedDates = results.map(result => {
+            const fecha = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+            return { ...result, fecha };
+        });
+        res.status(200).json(formattedDates);
+    } catch (error) {
+        console.error('Error al obtener las asistencias:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+
+    
 };
 
 module.exports = router;
