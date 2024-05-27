@@ -81,18 +81,16 @@ async function crearAdministrador(req, res) {
 }
 
 
-
-// Función para autenticar administrador
 async function autenticarAdministrador(req, res) {
     const { Credencial, password } = req.body;
 
     try {
         const [results] = await pool.query('SELECT * FROM admon WHERE Credencial = ?', [Credencial]);
-        const admin = results[0];
-        if (!admin) {
-            return res.status(401).json({ error: 'admin no encontrado' });
+        if (results.length === 0) {
+            return res.status(401).json({ error: 'Administrador no encontrado' });
         }
 
+        const admin = results[0];
         const match = await bcryptjs.compare(password, admin.Contraseña);
         if (!match) {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
@@ -172,6 +170,7 @@ async function autenticarAlumno(req, res) {
         res.status(500).json({ error: 'Error al autenticar alumno' });
     }
 }
+
 
 
 
