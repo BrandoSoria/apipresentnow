@@ -269,21 +269,7 @@ app.get('/grupo', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener grupos' });
     }
 }); 
-//materia por id
-app.get('/grupo/:idGrupo', async (req, res) => {
-    const idGrupo = req.params.idGrupo;
-    try {
-        const [results] = await pool.query('SELECT * FROM Grupo WHERE idGrupo = ?', [idGrupo]);
-        if (results.length === 0) {
-            return res.status(404).json({ error: 'Grupo no encontrado' });
-        }
-        res.status(200).json(results[0]);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener grupo' });
-    }
-});
-
+// Ruta para obtener grupos por Id_Materia
 app.get('/grupo/pormateria', async (req, res) => {
     const IdMateria = req.query.IdMateria;
     if (!IdMateria) {
