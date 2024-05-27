@@ -99,7 +99,7 @@ app.post('/asistencias', async (req, res) => {
     });
 
     // Obtener asistencias por materiaID (como parámetro de consulta)
-app.get('/asistencias', async (req, res) => {
+app.get('/asistencias/materia', async (req, res) => {
     const materiaID = req.query.materiaID;
     if (!materiaID) {
         return res.status(400).json({ error: 'El parámetro materiaID es obligatorio' });
