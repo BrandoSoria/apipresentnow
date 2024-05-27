@@ -291,7 +291,7 @@ app.get('/grupo/pormateria', async (req, res) => {
     }
 
     try {
-        const [results] = await pool.query('SELECT * FROM Grupo WHERE IdMateria = ?', [IdMateria]);
+        const [results] = await pool.query('SELECT * FROM Grupo WHERE Id_Materia = ?', [IdMateria]);
         res.status(200).json(results);
     } catch (error) {
         console.error('Error al obtener grupos:', error);
