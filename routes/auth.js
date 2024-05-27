@@ -87,7 +87,7 @@ async function autenticarAdministrador(req, res) {
     const { Credencial, password } = req.body;
 
     try {
-        const [results] = await pool.query('SELECT * FROM admin WHERE Credencial = ?', [Credencial]);
+        const [results] = await pool.query('SELECT * FROM admon WHERE Credencial = ?', [Credencial]);
         const admin = results[0];
         if (!admin) {
             return res.status(401).json({ error: 'admin no encontrado' });
