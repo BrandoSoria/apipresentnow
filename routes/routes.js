@@ -283,7 +283,7 @@ app.get('/grupo/:idGrupo', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener grupo' });
     }
 });
-// grupos por idmateria
+
 app.get('/grupo/pormateria', async (req, res) => {
     const IdMateria = req.query.IdMateria;
     if (!IdMateria) {
