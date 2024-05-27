@@ -283,6 +283,21 @@ app.get('/grupo/:idGrupo', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener grupo' });
     }
 });
+// grupos por idmateria
+app.get('/grupo/pormateria', async (req, res) => {
+    const IdMateria = req.query.IdMateria;
+    if (!IdMateria) {
+        return res.status(400).json({ error: 'El parámetro IdMateria es obligatorio' });
+    }
+
+    try {
+        const [results] = await pool.query('SELECT * FROM Grupo WHERE IdMateria = ?', [IdMateria]);
+        res.status(200).json(results);
+    } catch (error) {
+        console.error('Error al obtener grupos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
 // Actualizar un grupo existente
 app.put('/grupo/:idGrupo', async (req, res) => {
