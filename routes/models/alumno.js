@@ -52,14 +52,13 @@ const router = (app) => {
             res.status(500).json({ error: 'Error al eliminar alumno' });
         }
     });
-
-// Registrar asistencia de alumno a cada maateria
+// Registrar asistencia de alumno a cada materia
 app.post('/asistencias', async (req, res) => {
-    const { numeroControl, presente } = req.body;
+    const { numeroControl, id_materia, presente } = req.body;
     const Fecha = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
     
     try {
-        // Consultar las materias del alumno
+        // Consultar las materias del alumno para validar
         const query = `
             SELECT Materias.ClaveMateria, Materias.NombreMateria
             FROM AlxGpo
@@ -69,12 +68,14 @@ app.post('/asistencias', async (req, res) => {
         `;
         const [results] = await pool.query(query, [numeroControl]);
 
-        // Registrar la asistencia para cada materia del alumno
-        await Promise.all(results.map(async (row) => {
-            const { ClaveMateria, NombreMateria } = row;
-            const materiaId = ClaveMateria; // Usar la ClaveMateria como ID de materia
-            await pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, materiaId]);
-        }));
+        // Verificar que la materia proporcionada está asignada al alumno
+        const materiaValida = results.find(row => row.ClaveMateria === id_materia);
+        if (!materiaValida) {
+            return res.status(400).json({ error: 'La materia especificada no está asignada al alumno' });
+        }
+
+        // Registrar la asistencia para la materia especificada
+        await pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente, MateriaID) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, id_materia]);
 
         res.status(201).json({ message: 'Asistencia registrada correctamente' });
     } catch (error) {
@@ -82,6 +83,7 @@ app.post('/asistencias', async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
 
     // Obtener todas las asistencias
     app.get('/asistencias', async (req, res) => {
