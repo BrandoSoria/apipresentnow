@@ -53,9 +53,9 @@ const router = (app) => {
         }
     });
 
-// Registrar asistencia de alumno de todas las materias
+// Registrar asistencia de alumno a cada maateria
 app.post('/asistencias', async (req, res) => {
-    const { numeroControl, presente, materias } = req.body;
+    const { numeroControl, presente } = req.body;
     const Fecha = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
     
     try {
@@ -69,38 +69,17 @@ app.post('/asistencias', async (req, res) => {
         `;
         const [results] = await pool.query(query, [numeroControl]);
 
-        // Convertir los resultados en un objeto para fácil acceso
-        const materiasRegistradas = results.reduce((acc, row) => {
-            acc[row.ClaveMateria] = row.NombreMateria;
-            return acc;
-        }, {});
-
-        // Validar las materias especificadas en la solicitud
-        const asistenciaRegistrada = await Promise.all(materias.map(async (materia) => {
-            const { ClaveMateria } = materia;
-
-            if (!materiasRegistradas[ClaveMateria]) {
-                throw new Error(`Materia no registrada: ${ClaveMateria}`);
-            }
-
-            await pool.query(
-                'INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', 
-                [numeroControl, Fecha, presente, ClaveMateria]
-            );
-
-            return {
-                materiaId: ClaveMateria,
-                NombreMateria: materiasRegistradas[ClaveMateria]
-            };
+        // Registrar la asistencia para cada materia del alumno
+        await Promise.all(results.map(async (row) => {
+            const { ClaveMateria, NombreMateria } = row;
+            const materiaId = ClaveMateria; // Usar la ClaveMateria como ID de materia
+            await pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, materiaId]);
         }));
 
-        res.status(201).json({
-            message: 'Asistencia registrada correctamente',
-            asistencias: asistenciaRegistrada
-        });
+        res.status(201).json({ message: 'Asistencia registrada correctamente' });
     } catch (error) {
         console.error('Error al registrar la asistencia:', error);
-        res.status(500).json({ error: error.message || 'Error interno del servidor' });
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
 
