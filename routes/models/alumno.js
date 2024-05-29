@@ -53,50 +53,54 @@ const router = (app) => {
         }
     });
 
-// Registrar asistencia de alumno para cada materia a la hora de inicio de la materia
+// Registrar asistencia de alumno de todas las materias
 app.post('/asistencias', async (req, res) => {
-    const { numeroControl, presente } = req.body;
-    const currentDate = moment().tz('America/Mexico_City').format('YYYY-MM-DD');
-    const currentTime = moment().tz('America/Mexico_City').format('HH:mm:ss');
-
+    const { numeroControl, presente, materias } = req.body;
+    const Fecha = moment().tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+    
     try {
-        // Consultar las materias del alumno y sus horarios
+        // Consultar las materias del alumno
         const query = `
-            SELECT Materias.ClaveMateria, Materias.NombreMateria, Grupo.Hora
+            SELECT Materias.ClaveMateria, Materias.NombreMateria
             FROM AlxGpo
             JOIN Grupo ON AlxGpo.IdGrupo = Grupo.IdGrupo
             JOIN Materias ON Grupo.Id_Materia = Materias.ClaveMateria
             WHERE AlxGpo.NumeroControl = ?
-            ORDER BY Grupo.Hora
         `;
         const [results] = await pool.query(query, [numeroControl]);
 
-        let asistenciaRegistrada = false;
+        // Convertir los resultados en un objeto para fácil acceso
+        const materiasRegistradas = results.reduce((acc, row) => {
+            acc[row.ClaveMateria] = row.NombreMateria;
+            return acc;
+        }, {});
 
-        for (const row of results) {
-            const { ClaveMateria, NombreMateria, Hora } = row;
-            const materiaId = ClaveMateria; // Usar la ClaveMateria como ID de materia
-            const Fecha = `${currentDate} ${Hora}`;
+        // Validar las materias especificadas en la solicitud
+        const asistenciaRegistrada = await Promise.all(materias.map(async (materia) => {
+            const { ClaveMateria } = materia;
 
-            // Verificar si la asistencia para esta materia ya ha sido registrada hoy
-            const [asistencia] = await pool.query('SELECT * FROM Asistencia WHERE AlumnoID = ? AND materiaId = ? AND DATE(Fecha) = ?', [numeroControl, materiaId, currentDate]);
-
-            if (asistencia.length === 0 && Hora <= currentTime && !asistenciaRegistrada) {
-                // Registrar asistencia si no ha sido registrada y la hora de inicio ha pasado o es igual a la hora actual
-                await pool.query('INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', [numeroControl, Fecha, presente, materiaId]);
-                asistenciaRegistrada = true;
-                break; // Salir del bucle después de registrar la primera asistencia
+            if (!materiasRegistradas[ClaveMateria]) {
+                throw new Error(`Materia no registrada: ${ClaveMateria}`);
             }
-        }
 
-        if (asistenciaRegistrada) {
-            res.status(201).json({ message: 'Asistencia registrada correctamente' });
-        } else {
-            res.status(400).json({ message: 'No hay materias con la hora de inicio coincidente con la hora actual o todas las asistencias ya han sido registradas' });
-        }
+            await pool.query(
+                'INSERT INTO Asistencia (AlumnoID, Fecha, Presente, materiaId) VALUES (?, ?, ?, ?)', 
+                [numeroControl, Fecha, presente, ClaveMateria]
+            );
+
+            return {
+                materiaId: ClaveMateria,
+                NombreMateria: materiasRegistradas[ClaveMateria]
+            };
+        }));
+
+        res.status(201).json({
+            message: 'Asistencia registrada correctamente',
+            asistencias: asistenciaRegistrada
+        });
     } catch (error) {
         console.error('Error al registrar la asistencia:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ error: error.message || 'Error interno del servidor' });
     }
 });
 
