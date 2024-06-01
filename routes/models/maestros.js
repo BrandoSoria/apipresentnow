@@ -178,7 +178,7 @@ app.post('/entrada/profesor', [
     }
 });
 
-app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
+app.put('/entrada/profesorcheck/:fecha', async (req, res) => {
     const fecha = req.params.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
     const { entro } = req.body;
 
@@ -238,7 +238,7 @@ app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
     });
 
   // Obtener entrada por fecha
-  app.get('/entrada/profesor/fecha', async (req, res) => {
+  app.get('/entrada/profesorfecha', async (req, res) => {
     const fecha = req.query.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
     
     // Verificar si la fecha es válida
@@ -268,7 +268,7 @@ app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
 
 
 // Obtener entrada por aula
-app.get('/entrada/profesor/aula', async (req, res) => {
+app.get('/entrada/profesoraula', async (req, res) => {
     const { aula } = req.query;
 
     // Verificar si el parámetro de aula está presente y no es nulo
@@ -349,7 +349,7 @@ app.get('/entrada/profesor/aula', async (req, res) => {
     });
 
 
-    app.get('/salida/profesor/fecha/:fecha', async (req, res) => {
+    app.get('/salida/profesorfecha/:fecha', async (req, res) => {
         const fecha = req.params.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
         try {
             const [results] = await pool.query(
