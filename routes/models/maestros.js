@@ -178,6 +178,21 @@ app.post('/entrada/profesor', [
     }
 });
 
+// Actualizar entrada de profesor
+app.put('/entrada/profesor/:rfc', async (req, res) => {
+    const rfc = req.params.rfc;
+    const { aula, entro } = req.body;
+    try {
+        await pool.query('UPDATE EntradaMaestro SET aula = ?, entro = ? WHERE ProfesorRFC = ?', [aula, entro, rfc]);
+        await pool.query('UPDATE Profesores SET Entro = ? WHERE RFC = ?', [entro, rfc]);
+        res.json({ message: `Asistencia actualizada correctamente con RFC ${rfc}` });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar asistencia' });
+    }
+});
+
+//entradas
 
     // Obtener todas las asistencias
     app.get('/entrada/profesor', async (req, res) => {
@@ -210,6 +225,42 @@ app.post('/entrada/profesor', [
         }
     });
 
+    // Obtener entrada por fecha
+    app.get('entrada/profesor/fecha/:fecha', async (req, res) => {
+        const fecha = req.params.fecha;
+        try {
+            const [results] = await pool.query('SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM EntradaMaestro WHERE FechaHora = ?', [fecha]);
+            const formattedDates = results.map(result => {
+                const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+                return { ...result, fechaConHora };
+            });
+            res.status(200).json(formattedDates);
+        } catch (error) {
+            console.error('Error al obtener las Entradas de maestros:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    });
+
+    // Obtener entrada por aula
+
+    app.get('entrada/profesor/aula/:aula', async (req, res) => {
+        const aula = req.params.aula;
+        try {
+            const [results] = await pool.query('SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM EntradaMaestro WHERE aula = ?', [aula]);
+            const formattedDates = results.map(result => {
+                const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+                return { ...result, fechaConHora };
+            });
+            res.status(200).json(formattedDates);
+        } catch (error) {
+            console.error('Error al obtener las Entradas de maestros:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    });
+
+
+
+
     // Registrar salida de profesor
     app.post('/salida/profesor', [
         body('profesorRfc').notEmpty().withMessage('El RFC del profesor es obligatorio'),
@@ -230,6 +281,8 @@ app.post('/entrada/profesor', [
             res.status(500).json({ error: 'Error interno del servidor' });
         }
     });
+
+//salidas 
 
     // Obtener todas las salidas
     app.get('/salida/profesor', async (req, res) => {
@@ -261,6 +314,41 @@ app.post('/entrada/profesor', [
             res.status(500).json({ error: 'Error interno del servidor' });
         }
     });
+
+    // Obtener salida por aula
+
+    app.get('/salida/profesor/aula/:aula', async (req, res) => {
+        const aula = req.params.aula;
+        try {
+            const [results] = await pool.query('SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM SalidaMaestro WHERE aula = ?', [aula]);
+            const formattedDates = results.map(result => {
+                const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+                return { ...result, fechaConHora };
+            });
+            res.status(200).json(formattedDates);
+        } catch (error) {
+            console.error('Error al obtener las Salidas de maestros:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    });
+
+    // Obtener salida por fecha
+    app.get('salida/profesor/fecha/:fecha', async (req, res) => {
+        const fecha = req.params.fecha;
+        try {
+            const [results] = await pool.query('SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM SalidaMaestro WHERE FechaHora = ?', [fecha]);
+            const formattedDates = results.map(result => {
+                const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+                return { ...result, fechaConHora };
+            });
+            res.status(200).json(formattedDates);
+        } catch (error) {
+            console.error('Error al obtener las Salidas de maestros:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    });
+
+
 };
 
 module.exports = router;
