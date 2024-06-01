@@ -180,12 +180,12 @@ app.post('/entrada/profesor', [
 // Actualizar asistencia de profesor por fecha
 app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
     const fecha = req.params.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
-    const { asistio } = req.body;
+    const { entro } = req.body;
     try {
         // Actualizar la columna 'asistio' en la tabla 'EntradaMaestro' para la fecha especificada
         const [results] = await pool.query(
-            'UPDATE EntradaMaestro SET asistio = ? WHERE DATE(FechaHora) = ?', 
-            [asistio, fecha]
+            'UPDATE EntradaMaestro SET entro = ? WHERE DATE(FechaHora) = ?', 
+            [entro, fecha]
         );
 
         if (results.affectedRows === 0) {
@@ -235,8 +235,14 @@ app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
 
   // Obtener entrada por fecha
 
-app.get('/entrada/profesor/fecha/:fecha', async (req, res) => {
-    const fecha = req.params.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
+  app.get('/entrada/profesor/fecha', async (req, res) => {
+    const fecha = req.query.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
+    
+    // Verificar si la fecha es válida
+    if (!fecha || !moment(fecha, 'YYYY-MM-DD', true).isValid()) {
+        return res.status(400).json({ error: 'La fecha proporcionada no es válida. Asegúrate de que esté en el formato YYYY-MM-DD.' });
+    }
+
     try {
         const [results] = await pool.query(
             'SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d") AS fechaSinHora FROM EntradaMaestro WHERE DATE(FechaHora) = ?', 
@@ -254,10 +260,16 @@ app.get('/entrada/profesor/fecha/:fecha', async (req, res) => {
 });
 
 
- // Obtener entrada por aula
 
-app.get('/entrada/profesor/aula/:aula', async (req, res) => { // Asegúrate de que la ruta comience con una barra
-    const aula = req.params.aula;
+ // Obtener entrada por aula
+ app.get('/entrada/profesor/aula', async (req, res) => {
+    const { aula } = req.query;
+
+    // Verificar si el parámetro de aula está presente y no es nulo
+    if (!aula) {
+        return res.status(400).json({ error: 'El parámetro de aula es requerido.' });
+    }
+
     try {
         const [results] = await pool.query('SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM EntradaMaestro WHERE aula = ?', [aula]);
         const formattedDates = results.map(result => {
@@ -270,9 +282,6 @@ app.get('/entrada/profesor/aula/:aula', async (req, res) => { // Asegúrate de q
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
-
-
-
 
 
     // Registrar salida de profesor
@@ -329,22 +338,6 @@ app.get('/entrada/profesor/aula/:aula', async (req, res) => { // Asegúrate de q
         }
     });
 
-    // Obtener salida por aula
-
-    app.get('/salida/profesor/aula/:aula', async (req, res) => {
-        const aula = req.params.aula;
-        try {
-            const [results] = await pool.query('SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM SalidaMaestro WHERE aula = ?', [aula]);
-            const formattedDates = results.map(result => {
-                const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
-                return { ...result, fechaConHora };
-            });
-            res.status(200).json(formattedDates);
-        } catch (error) {
-            console.error('Error al obtener las Salidas de maestros:', error);
-            res.status(500).json({ error: 'Error interno del servidor' });
-        }
-    });
 
     app.get('/salida/profesor/fecha/:fecha', async (req, res) => {
         const fecha = req.params.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
