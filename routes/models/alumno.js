@@ -100,6 +100,65 @@ app.post('/asistencias', async (req, res) => {
         }
     });
 
+
+    // Obtener asistencias por fecha (como parámetro de consulta)
+    app.get('/asistencias/fecha', async (req, res) => {
+        const fecha = req.query.fecha;
+        if (!fecha || !moment(fecha, 'YYYY-MM-DD', true).isValid()) {
+            res.status(400).json({ error: 'La fecha proporcionada no es válida. Asegúrate de que esté en el formato YYYY-MM-DD.' });
+            
+
+        }
+        try {
+            const [results] = await pool.query('SELECT *, DATE_FORMAT(Fecha, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM Asistencia WHERE DATE(Fecha) = ?', 
+            [fecha]
+        );
+          // Verificar si se encontraron resultados
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron entradas de profesores para la fecha especificada.' });
+        }
+
+        const formattedDates = results.map(result => {
+            const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD');
+            return { ...result, fechaConHora };
+        });
+        res.status(200).json(formattedDates);
+    } catch (error) {
+        console.error('Error al obtener las asistencias de alumnos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    });
+
+    // Obtener asistencias por nombre de grupo y materia (como parámetro de consulta)
+    app.get('/asistencias/materiagrupo', async (req, res) => {
+        const nombreGrupo = req.query.nombreGrupo;
+        const idMateria = req.query.idMateria;
+    
+        if (!nombreGrupo || !idMateria) {
+            return res.status(400).json({ error: 'Los parámetros nombreGrupo e idMateria son obligatorios' });
+        }
+    
+        try {
+            const query = `
+                SELECT a.*, DATE_FORMAT(a.Fecha, "%Y-%m-%d %H:%i:%s") AS fechaConHora
+                FROM Asistencia a
+                JOIN Grupo g ON a.materiaId = g.Id_Materia
+                WHERE g.NombreGrupo = ? AND g.Id_Materia = ?
+            `;
+    
+            const [results] = await pool.query(query, [nombreGrupo, idMateria]);
+            const formattedDates = results.map(result => {
+                const fecha = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+                return { ...result, fecha };
+            });
+    
+            res.status(200).json(formattedDates);
+        } catch (error) {
+            console.error('Error al obtener las asistencias:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    });
+
     // Obtener asistencias por materiaID (como parámetro de consulta)
 app.get('/asistencias/materia', async (req, res) => {
     const materiaID = req.query.materiaID;
