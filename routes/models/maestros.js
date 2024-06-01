@@ -177,13 +177,12 @@ app.post('/entrada/profesor', [
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
-
 app.put('/entrada/profesorcheck/:fecha', async (req, res) => {
     const fecha = req.params.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
     const { entro } = req.body;
 
-    // Convertir el valor booleano a un entero (0 o 1)
-    const asistio = entro ? 1 : 0;
+    // Convertir el valor booleano a un entero (0 o 1) de manera explícita
+    const asistio = entro === true ? 1 : 0;
 
     try {
         // Actualizar la columna 'asistio' en la tabla 'EntradaMaestro' para la fecha especificada
