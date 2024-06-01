@@ -177,15 +177,19 @@ app.post('/entrada/profesor', [
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
-// Actualizar asistencia de profesor por fecha
+
 app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
     const fecha = req.params.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
     const { entro } = req.body;
+
+    // Convertir el valor booleano a un entero (0 o 1)
+    const asistio = entro ? 1 : 0;
+
     try {
         // Actualizar la columna 'asistio' en la tabla 'EntradaMaestro' para la fecha especificada
         const [results] = await pool.query(
             'UPDATE EntradaMaestro SET entro = ? WHERE DATE(FechaHora) = ?', 
-            [entro, fecha]
+            [asistio, fecha]
         );
 
         if (results.affectedRows === 0) {
@@ -234,7 +238,6 @@ app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
     });
 
   // Obtener entrada por fecha
-
   app.get('/entrada/profesor/fecha', async (req, res) => {
     const fecha = req.query.fecha; // Se espera que la fecha sea en formato 'YYYY-MM-DD'
     
@@ -245,12 +248,16 @@ app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
 
     try {
         const [results] = await pool.query(
-            'SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d") AS fechaSinHora FROM EntradaMaestro WHERE DATE(FechaHora) = ?', 
+            'SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM EntradaMaestro WHERE DATE(FechaHora) = ?', 
             [fecha]
         );
+        // Verificar si se encontraron resultados
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron entradas de profesores para la fecha especificada.' });
+        }
         const formattedDates = results.map(result => {
-            const fechaSinHora = moment.tz(result.fechaSinHora, 'America/Mexico_City').format('YYYY-MM-DD');
-            return { ...result, fechaSinHora };
+            const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD');
+            return { ...result, fechaConHora };
         });
         res.status(200).json(formattedDates);
     } catch (error) {
@@ -260,9 +267,8 @@ app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
 });
 
 
-
- // Obtener entrada por aula
- app.get('/entrada/profesor/aula', async (req, res) => {
+// Obtener entrada por aula
+app.get('/entrada/profesor/aula', async (req, res) => {
     const { aula } = req.query;
 
     // Verificar si el parámetro de aula está presente y no es nulo
@@ -272,8 +278,12 @@ app.put('/entrada/profesor/fecha/:fecha', async (req, res) => {
 
     try {
         const [results] = await pool.query('SELECT *, DATE_FORMAT(FechaHora, "%Y-%m-%d %H:%i:%s") AS fechaConHora FROM EntradaMaestro WHERE aula = ?', [aula]);
+        // Verificar si se encontraron resultados
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron entradas de profesores para el aula especificada.' });
+        }
         const formattedDates = results.map(result => {
-            const fechaConHora = moment.tz(result.FechaHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+            const fechaConHora = moment.tz(result.fechaConHora, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
             return { ...result, fechaConHora };
         });
         res.status(200).json(formattedDates);
